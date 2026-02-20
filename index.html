@@ -1,265 +1,178 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Leetopia Auction Website</title>
+  <title>Leetopia Auction Website</title>
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #1e1e2f;
-    color: white;
-    text-align: center;
-    padding: 20px;
-}
+  <!-- Firebase v8 (simple version) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-h1 { margin-bottom: 20px; }
+  <style>
+    body {
+      font-family: Arial;
+      background:#111;
+      color:white;
+      text-align:center;
+    }
 
-button {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background: #00b894;
-    color: white;
-    margin: 5px;
-}
+    .box {
+      background:#222;
+      padding:20px;
+      margin:20px auto;
+      border-radius:10px;
+      width:90%;
+      max-width:500px;
+    }
 
-button:hover { background: #00a383; }
+    input, button {
+      padding:8px;
+      margin:5px;
+      border-radius:5px;
+      border:none;
+    }
 
-.container {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
+    button {
+      background:gold;
+      cursor:pointer;
+      font-weight:bold;
+    }
 
-.card {
-    background: #2c2c3e;
-    padding: 15px;
-    border-radius: 15px;
-    width: 300px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-}
-
-img {
-    width: 100%;
-    border-radius: 10px;
-    margin-bottom: 10px;
-}
-
-input, select {
-    padding: 6px;
-    width: 90%;
-    margin: 5px 0;
-    border-radius: 5px;
-    border: none;
-}
-
-.bid-list {
-    text-align: left;
-    margin-top: 10px;
-    max-height: 140px;
-    overflow-y: auto;
-    background: #1a1a28;
-    padding: 8px;
-    border-radius: 10px;
-    font-size: 14px;
-}
-
-.price { color: #00ffcc; }
-.timer { color: #ffd166; font-weight: bold; }
-.winner { color: #00ff88; font-weight: bold; margin-top: 5px; }
-.highlight { color:#00ff88; font-weight:bold; }
-</style>
+    button:hover {
+      background:orange;
+    }
+  </style>
 </head>
 
 <body>
 
 <h1>Leetopia Auction Website</h1>
 
-<button onclick="ownerLogin()">Owner Login</button>
-<button onclick="ownerLogout()">Logout Owner</button>
+<div class="box">
+  <h2>Owner Panel</h2>
+  <input type="password" id="ownerPass" placeholder="Owner Password">
+  <button onclick="loginOwner()">Login</button>
 
-<div class="container" id="auctionContainer"></div>
+  <div id="ownerControls" style="display:none;">
+    <input type="text" id="itemName" placeholder="Item Name"><br>
+    <input type="number" id="itemQty" placeholder="Jumlah Item"><br>
+    <input type="number" id="startPrice" placeholder="Start Price (BGL)"><br>
+    <input type="number" id="duration" placeholder="Durasi (menit)"><br>
+    <button onclick="startAuction()">Start Auction</button>
+  </div>
+</div>
+
+<div class="box">
+  <h2 id="itemDisplay">Belum ada lelang</h2>
+  <h3 id="timer"></h3>
+
+  <h3>Highest Bid: <span id="highestBid">0</span> BGL</h3>
+  <h3>Bidder: <span id="highestBidder">-</span></h3>
+
+  <input type="text" id="growId" placeholder="Masukkan GrowID"><br>
+  <input type="number" id="bidAmount" placeholder="Masukkan Bid (BGL)"><br>
+  <button onclick="placeBid()">Bid</button>
+
+  <h3>Bid History</h3>
+  <div id="bidHistory"></div>
+</div>
 
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC8QrDc5NiyyEZwl8sqBSVEPkymTkpgOiU",
+  authDomain: "leetopia-auction.firebaseapp.com",
+  databaseURL: "https://leetopia-auction-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "leetopia-auction",
+  storageBucket: "leetopia-auction.firebasestorage.app",
+  messagingSenderId: "396746559389",
+  appId: "1:396746559389:web:21fa42ddc49366b6106974"
+};
 
-let ownerPassword = "leetopia123";
-let isOwner = false;
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-function createAuction(){
-    return {
-        price: 1,
-        bids: [],
-        image: "",
-        timeLeft: 0,
-        active: false,
-        interval: null,
-        winner: null
-    };
+const OWNER_PASSWORD = "12345";
+
+function loginOwner(){
+  if(document.getElementById("ownerPass").value === OWNER_PASSWORD){
+    document.getElementById("ownerControls").style.display="block";
+    alert("Owner Login Success");
+  } else {
+    alert("Wrong Password");
+  }
 }
 
-let auctions = [
-    createAuction(),
-    createAuction(),
-    createAuction()
-];
+function startAuction(){
+  const name = document.getElementById("itemName").value;
+  const qty = document.getElementById("itemQty").value;
+  const start = parseInt(document.getElementById("startPrice").value);
+  const duration = parseInt(document.getElementById("duration").value);
 
-function ownerLogin(){
-    let pass = prompt("Masukkan Password Owner:");
-    if(pass === ownerPassword){
-        isOwner = true;
-        alert("Login berhasil!");
-        renderAuctions();
+  const endTime = Date.now() + duration * 60000;
+
+  db.ref("auction").set({
+    itemName:name,
+    itemQty:qty,
+    highestBid:start,
+    highestBidder:"-",
+    endTime:endTime
+  });
+
+  db.ref("bids").remove();
+}
+
+function placeBid(){
+  const growId = document.getElementById("growId").value;
+  const amount = parseInt(document.getElementById("bidAmount").value);
+
+  db.ref("auction").once("value", snap=>{
+    const data = snap.val();
+    if(!data) return;
+
+    if(amount > data.highestBid){
+      db.ref("auction").update({
+        highestBid:amount,
+        highestBidder:growId
+      });
+
+      db.ref("bids").push({
+        growId:growId,
+        amount:amount
+      });
     } else {
-        alert("Password salah!");
+      alert("Bid harus lebih tinggi dari highest bid!");
     }
+  });
 }
 
-function ownerLogout(){
-    isOwner = false;
-    alert("Owner logout.");
-    renderAuctions();
-}
+db.ref("auction").on("value", snap=>{
+  const data = snap.val();
+  if(!data) return;
 
-function renderAuctions(){
-    const container = document.getElementById("auctionContainer");
-    container.innerHTML = "";
+  document.getElementById("itemDisplay").innerHTML =
+    data.itemName + " (x" + data.itemQty + ")";
 
-    auctions.forEach((auction, index) => {
+  document.getElementById("highestBid").innerHTML = data.highestBid;
+  document.getElementById("highestBidder").innerHTML = data.highestBidder;
 
-        let timeDisplay = auction.active
-            ? formatTime(auction.timeLeft)
-            : auction.winner
-                ? "Selesai"
-                : "Belum dimulai";
-
-        let card = document.createElement("div");
-        card.className = "card";
-
-        card.innerHTML = `
-            ${isOwner && !auction.active && !auction.winner ? `
-                <input type="file" onchange="uploadImage(event, ${index})">
-                <input type="number" id="time${index}" placeholder="Durasi">
-                <select id="timeType${index}">
-                    <option value="minute">Menit</option>
-                    <option value="hour">Jam</option>
-                </select>
-                <button onclick="startAuction(${index})">Mulai Lelang</button>
-            ` : ""}
-
-            <img src="${auction.image}" alt="Item ${index+1}">
-            <div class="price">Harga: ${auction.price} BGL</div>
-            <div class="timer">Waktu: ${timeDisplay}</div>
-            ${auction.winner ? `<div class="winner">Winner: ${auction.winner}</div>` : ""}
-
-            <input type="text" id="grow${index}" placeholder="GrowID">
-            <input type="number" id="bid${index}" placeholder="Jumlah BGL">
-            <button onclick="placeBid(${index})">Tawar</button>
-
-            <div class="bid-list">
-                <b>Daftar Penawaran:</b>
-                ${auction.bids.slice().reverse().map((b,i) => 
-                    `<div class="${i===0 ? 'highlight' : ''}">
-                        #${auction.bids.length - i}
-                        <b>${b.grow}</b> menawar ${b.amount} BGL
-                    </div>`
-                ).join("")}
-            </div>
-        `;
-
-        container.appendChild(card);
-    });
-}
-
-function uploadImage(event, index){
-    if(!isOwner) return;
-    const file = event.target.files[0];
-    if(file){
-        const reader = new FileReader();
-        reader.onload = function(e){
-            auctions[index].image = e.target.result;
-            renderAuctions();
-        }
-        reader.readAsDataURL(file);
+  const interval = setInterval(()=>{
+    const remaining = data.endTime - Date.now();
+    if(remaining <= 0){
+      document.getElementById("timer").innerHTML = "Auction Ended";
+      clearInterval(interval);
+    } else {
+      document.getElementById("timer").innerHTML =
+        "Time Left: " + Math.floor(remaining/60000) + "m " +
+        Math.floor((remaining%60000)/1000) + "s";
     }
-}
+  },1000);
+});
 
-function startAuction(index){
-    let duration = parseInt(document.getElementById("time"+index).value);
-    let type = document.getElementById("timeType"+index).value;
-
-    if(isNaN(duration) || duration <= 0){
-        alert("Masukkan durasi valid!");
-        return;
-    }
-
-    let seconds = type === "hour" ? duration * 3600 : duration * 60;
-
-    auctions[index].timeLeft = seconds;
-    auctions[index].active = true;
-    auctions[index].winner = null;
-
-    auctions[index].interval = setInterval(() => {
-        auctions[index].timeLeft--;
-
-        if(auctions[index].timeLeft <= 0){
-            clearInterval(auctions[index].interval);
-            auctions[index].active = false;
-
-            if(auctions[index].bids.length > 0){
-                let lastBid = auctions[index].bids[auctions[index].bids.length - 1];
-                auctions[index].winner = lastBid.grow;
-            } else {
-                auctions[index].winner = "Tidak ada penawar";
-            }
-        }
-
-        renderAuctions();
-    }, 1000);
-
-    renderAuctions();
-}
-
-function placeBid(index){
-    if(!auctions[index].active){
-        alert("Lelang belum dimulai atau sudah selesai!");
-        return;
-    }
-
-    const growId = document.getElementById("grow"+index).value.trim();
-    const bid = parseInt(document.getElementById("bid"+index).value);
-
-    if(growId === "" || isNaN(bid)){
-        alert("Isi GrowID dan jumlah BGL!");
-        return;
-    }
-
-    if(bid <= auctions[index].price){
-        alert("Harus lebih tinggi dari bid sebelumnya!");
-        return;
-    }
-
-    auctions[index].price = bid;
-
-    auctions[index].bids.push({
-        grow: growId,
-        amount: bid
-    });
-
-    renderAuctions();
-}
-
-function formatTime(seconds){
-    let h = Math.floor(seconds / 3600);
-    let m = Math.floor((seconds % 3600) / 60);
-    let s = seconds % 60;
-    return `${h}j ${m}m ${s}d`;
-}
-
-renderAuctions();
-
+db.ref("bids").on("child_added", snap=>{
+  const bid = snap.val();
+  const div = document.createElement("div");
+  div.innerHTML = bid.growId + " bid " + bid.amount + " BGL";
+  document.getElementById("bidHistory").prepend(div);
+});
 </script>
 
 </body>
