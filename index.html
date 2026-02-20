@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Leetopia Auction Website</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #1e1e2f;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 { margin-bottom: 20px; }
+
+button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #00b894;
+    color: white;
+    margin: 5px;
+}
+
+button:hover { background: #00a383; }
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.card {
+    background: #2c2c3e;
+    padding: 15px;
+    border-radius: 15px;
+    width: 300px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+input, select {
+    padding: 6px;
+    width: 90%;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: none;
+}
+
+.bid-list {
+    text-align: left;
+    margin-top: 10px;
+    max-height: 140px;
+    overflow-y: auto;
+    background: #1a1a28;
+    padding: 8px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.price { color: #00ffcc; }
+.timer { color: #ffd166; font-weight: bold; }
+.winner { color: #00ff88; font-weight: bold; margin-top: 5px; }
+.highlight { color:#00ff88; font-weight:bold; }
+</style>
+</head>
+
+<body>
+
+<h1>Leetopia Auction Website</h1>
+
+<button onclick="ownerLogin()">Owner Login</button>
+<button onclick="ownerLogout()">Logout Owner</button>
+
+<div class="container" id="auctionContainer"></div>
+
+<script>
+
+let ownerPassword = "leetopia123";
+let isOwner = false;
+
+function createAuction(){
+    return {
+        price: 1,
+        bids: [],
+        image: "",
+        timeLeft: 0,
+        active: false,
+        interval: null,
+        winner: null
+    };
+}
+
+let auctions = [
+    createAuction(),
+    createAuction(),
+    createAuction()
+];
+
+function ownerLogin(){
+    let pass = prompt("Masukkan Password Owner:");
+    if(pass === ownerPassword){
+        isOwner = true;
+        alert("Login berhasil!");
+        renderAuctions();
+    } else {
+        alert("Password salah!");
+    }
+}
+
+function ownerLogout(){
+    isOwner = false;
+    alert("Owner logout.");
+    renderAuctions();
+}
+
+function renderAuctions(){
+    const container = document.getElementById("auctionContainer");
+    container.innerHTML = "";
+
+    auctions.forEach((auction, index) => {
+
+        let timeDisplay = auction.active
+            ? formatTime(auction.timeLeft)
+            : auction.winner
+                ? "Selesai"
+                : "Belum dimulai";
+
+        let card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            ${isOwner && !auction.active && !auction.winner ? `
+                <input type="file" onchange="uploadImage(event, ${index})">
+                <input type="number" id="time${index}" placeholder="Durasi">
+                <select id="timeType${index}">
+                    <option value="minute">Menit</option>
+                    <option value="hour">Jam</option>
+                </select>
+                <button onclick="startAuction(${index})">Mulai Lelang</button>
+            ` : ""}
+
+            <img src="${auction.image}" alt="Item ${index+1}">
+            <div class="price">Harga: ${auction.price} BGL</div>
+            <div class="timer">Waktu: ${timeDisplay}</div>
+            ${auction.winner ? `<div class="winner">Winner: ${auction.winner}</div>` : ""}
+
+            <input type="text" id="grow${index}" placeholder="GrowID">
+            <input type="number" id="bid${index}" placeholder="Jumlah BGL">
+            <button onclick="placeBid(${index})">Tawar</button>
+
+            <div class="bid-list">
+                <b>Daftar Penawaran:</b>
+                ${auction.bids.slice().reverse().map((b,i) => 
+                    `<div class="${i===0 ? 'highlight' : ''}">
+                        #${auction.bids.length - i}
+                        <b>${b.grow}</b> menawar ${b.amount} BGL
+                    </div>`
+                ).join("")}
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+function uploadImage(event, index){
+    if(!isOwner) return;
+    const file = event.target.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.onload = function(e){
+            auctions[index].image = e.target.result;
+            renderAuctions();
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+function startAuction(index){
+    let duration = parseInt(document.getElementById("time"+index).value);
+    let type = document.getElementById("timeType"+index).value;
+
+    if(isNaN(duration) || duration <= 0){
+        alert("Masukkan durasi valid!");
+        return;
+    }
+
+    let seconds = type === "hour" ? duration * 3600 : duration * 60;
+
+    auctions[index].timeLeft = seconds;
+    auctions[index].active = true;
+    auctions[index].winner = null;
+
+    auctions[index].interval = setInterval(() => {
+        auctions[index].timeLeft--;
+
+        if(auctions[index].timeLeft <= 0){
+            clearInterval(auctions[index].interval);
+            auctions[index].active = false;
+
+            if(auctions[index].bids.length > 0){
+                let lastBid = auctions[index].bids[auctions[index].bids.length - 1];
+                auctions[index].winner = lastBid.grow;
+            } else {
+                auctions[index].winner = "Tidak ada penawar";
+            }
+        }
+
+        renderAuctions();
+    }, 1000);
+
+    renderAuctions();
+}
+
+function placeBid(index){
+    if(!auctions[index].active){
+        alert("Lelang belum dimulai atau sudah selesai!");
+        return;
+    }
+
+    const growId = document.getElementById("grow"+index).value.trim();
+    const bid = parseInt(document.getElementById("bid"+index).value);
+
+    if(growId === "" || isNaN(bid)){
+        alert("Isi GrowID dan jumlah BGL!");
+        return;
+    }
+
+    if(bid <= auctions[index].price){
+        alert("Harus lebih tinggi dari bid sebelumnya!");
+        return;
+    }
+
+    auctions[index].price = bid;
+
+    auctions[index].bids.push({
+        grow: growId,
+        amount: bid
+    });
+
+    renderAuctions();
+}
+
+function formatTime(seconds){
+    let h = Math.floor(seconds / 3600);
+    let m = Math.floor((seconds % 3600) / 60);
+    let s = seconds % 60;
+    return `${h}j ${m}m ${s}d`;
+}
+
+renderAuctions();
+
+</script>
+
+</body>
+</html>
