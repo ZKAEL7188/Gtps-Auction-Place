@@ -669,8 +669,8 @@
                     <i class="fas fa-user"></i> <span id="growidText">Player</span>
                     <span id="adminBadge" class="admin-badge" style="display:none;">ADMIN</span>
                 </div>
-                <!-- TOMBOL LOGOUT BARU -->
-                <button onclick="logout()" class="logout-btn" title="Logout">
+                <!-- TOMBOL LOGOUT BARU - dengan ID -->
+                <button id="headerLogoutBtn" class="logout-btn" title="Logout">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
@@ -920,7 +920,7 @@
                 <p style="color:#666;">GrowID: <strong id="profileGrowID">-</strong></p>
             </div>
 
-            <!-- Logout button di panel profile (opsional, bisa dihapus karena sudah di header) -->
+            <!-- Logout button di panel profile (opsional) -->
             <button class="btn btn-danger" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </button>
@@ -1165,12 +1165,22 @@
             }
         };
 
-        // Logout
-        window.logout = function() {
+        // Logout Function - FIX: Define as regular function then expose to window
+        function logout() {
             currentUser = null;
             localStorage.removeItem("currentUser");
             location.reload();
-        };
+        }
+
+        // Expose logout to global scope
+        window.logout = logout;
+
+        // Event listener untuk tombol logout di header
+        document.getElementById('headerLogoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            logout();
+        });
 
         // Show Main Application - FIXED
         function showMainApp() {
@@ -1909,3 +1919,4 @@
     </script>
 </body>
 </html>
+
