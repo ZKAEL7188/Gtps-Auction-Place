@@ -1,243 +1,797 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Meatps Auction</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      padding-bottom: 70px;
-      background: #f2f2f2;
-      text-align: center;
-    }
-
-    .container {
-      padding: 20px;
-    }
-
-    .card {
-      background: white;
-      padding: 15px;
-      margin: 10px auto;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    input, button {
-      padding: 8px;
-      margin: 5px;
-    }
-
-    .chat-box {
-      height: 200px;
-      overflow-y: auto;
-      text-align: left;
-      background: #fff;
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    .bottom-menu {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: #222;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      color: white;
-    }
-
-    .menu-btn {
-      cursor: pointer;
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lelang GTPS • Modern</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Inter, system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .gtps-app {
+            max-width: 860px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #0a3a66 0%, #1e5f8e 100%);
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .header h1 i {
+            margin-right: 10px;
+            color: #ffd700;
+        }
+        
+        #growidDisplay {
+            cursor: pointer;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        #growidDisplay:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .nav {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            background: #fafafa;
+        }
+        
+        .nav button {
+            flex: 1;
+            padding: 1.2rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        
+        .nav button i {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .nav button:hover {
+            color: #0a3a66;
+            background: rgba(10, 58, 102, 0.05);
+        }
+        
+        .nav button.active {
+            color: #0a58ca;
+            background: #f0f7ff;
+        }
+        
+        .nav button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #0a58ca;
+        }
+        
+        .panel {
+            display: none;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .panel.active {
+            display: block;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        
+        .input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            border: 2px solid #e0e0e0;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .input:focus {
+            border-color: #0a58ca;
+            box-shadow: 0 0 0 3px rgba(10, 88, 202, 0.1);
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #0a3a66 0%, #1e5f8e 100%);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(10, 58, 102, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        
+        .auction-box {
+            background: linear-gradient(135deg, #f5f9ff 0%, #e3efff 100%);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            border: 2px solid #d0e3ff;
+        }
+        
+        .auction-box img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .big {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #0a3a66;
+            text-align: center;
+            margin: 1rem 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .timer {
+            background: linear-gradient(135deg, #0a3a66 0%, #1e5f8e 100%);
+            color: white;
+            padding: 1.2rem;
+            border-radius: 50px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 10px 20px rgba(10, 58, 102, 0.3);
+        }
+        
+        .timer.ended {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            background: #f5faff;
+            padding: 1rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .chat-bubble {
+            background: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 20px;
+            margin-bottom: 0.8rem;
+            border: 1px solid #e0e0e0;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .chat-bubble.own {
+            background: linear-gradient(135deg, #d9ebff 0%, #c3e0ff 100%);
+            margin-left: auto;
+            border-color: #b3d7ff;
+        }
+        
+        .chat-bubble b {
+            color: #0a3a66;
+            font-size: 0.9rem;
+        }
+        
+        .history {
+            background: #f5faff;
+            padding: 1rem;
+            border-radius: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: #0a3a66;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #0a58ca;
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .flex-row .input {
+            flex: 1;
+        }
+        
+        .flex-row .btn {
+            width: auto;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-ended {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .big {
+                font-size: 2rem;
+            }
+            
+            .flex-row {
+                flex-direction: column;
+            }
+            
+            .flex-row .btn {
+                width: 100%;
+            }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0a58ca;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+    </style>
 </head>
-
 <body>
+    <div class="gtps-app">
+        <div class="header">
+            <h1><i class="fas fa-gavel"></i>LELANG GTPS</h1>
+            <div onclick="switchPanel('profile')" id="growidDisplay">
+                <i class="fas fa-user"></i> <span id="growidText">PlayerGTPS</span>
+            </div>
+        </div>
 
-<div id="lelang" class="container">
-  <h2>📦 Meatps Auction</h2>
+        <div class="nav">
+            <button id="tabProfile" class="active" onclick="switchPanel('profile')">
+                <i class="fas fa-user-circle"></i>
+                Profil
+            </button>
+            <button id="tabAuction" onclick="switchPanel('auction')">
+                <i class="fas fa-gavel"></i>
+                Lelang
+            </button>
+            <button id="tabChat" onclick="switchPanel('chat')">
+                <i class="fas fa-comments"></i>
+                Chat
+            </button>
+            <button id="tabBid" onclick="switchPanel('bid')">
+                <i class="fas fa-hand-holding-usd"></i>
+                Bid
+            </button>
+        </div>
 
-  <div class="card">
-    <h3 id="itemName">Item: -</h3>
-    <p id="itemJumlah">Jumlah: -</p>
-    <p>⏳ <span id="timer">0</span> detik</p>
-    <h3>💎 <span id="highestBid">0</span> BGL</h3>
-    <p>👤 <span id="highestBidder">-</span></p>
-  </div>
+        <!-- Panel Profil -->
+        <div id="panelProfile" class="panel active">
+            <div class="section-title"><i class="fas fa-user-edit"></i> Pengaturan Profil</div>
+            
+            <div class="input-group">
+                <label style="display:block; margin-bottom:0.5rem; color:#666; font-weight:600;">GrowID Anda</label>
+                <input class="input" id="growidInput" placeholder="Masukkan GrowID" maxlength="20">
+                <button class="btn" onclick="saveProfile()">
+                    <i class="fas fa-save"></i> Simpan Profil
+                </button>
+            </div>
 
-  <div class="card">
-    <input id="growid" placeholder="GrowID">
-    <input id="bidAmount" type="number" placeholder="Jumlah BGL">
-    <button onclick="placeBid()">Bid</button>
-  </div>
+            <div style="margin-top:2rem; border-top:2px solid #eee; padding-top:1.5rem;">
+                <div class="section-title"><i class="fas fa-shield-alt"></i> Area Owner</div>
+                <input type="password" id="ownerPass" class="input" placeholder="Password Owner">
+                <button class="btn btn-secondary" onclick="ownerLogin()">
+                    <i class="fas fa-lock"></i> Login Owner
+                </button>
 
-  <div class="card">
-    <h4>Riwayat Bid</h4>
-    <div id="bidList"></div>
-  </div>
-</div>
+                <div id="ownerPanel" style="display:none; margin-top:1.5rem;">
+                    <div class="info-card">
+                        <strong><i class="fas fa-info-circle"></i> Buat Lelang Baru</strong>
+                        <p style="margin-top:0.5rem; color:#666; font-size:0.9rem;">Isi detail item yang akan dilelang</p>
+                    </div>
+                    
+                    <input class="input" id="itemName" placeholder="Nama Item">
+                    <input class="input" id="itemQty" placeholder="Jumlah Item (contoh: 1-200)">
+                    <input class="input" id="itemImg" placeholder="URL Gambar Item">
+                    <input class="input" id="duration" placeholder="Durasi (menit)" type="number" min="1" max="1440">
+                    
+                    <button class="btn btn-danger" onclick="createAuction()">
+                        <i class="fas fa-play-circle"></i> Mulai Lelang
+                    </button>
+                    <button class="btn" onclick="endAuctionEarly()" style="margin-top:0.5rem;">
+                        <i class="fas fa-stop-circle"></i> Akhiri Lelang
+                    </button>
+                </div>
+            </div>
+        </div>
 
-<div id="chat" class="container hidden">
-  <h2>🗣️ Live Chat</h2>
+        <!-- Panel Lelang -->
+        <div id="panelAuction" class="panel">
+            <div class="section-title"><i class="fas fa-box-open"></i> Item Saat Ini</div>
+            
+            <div class="auction-box">
+                <img id="displayImg" src="https://placehold.co/120x120?text=No+Item" alt="Item">
+                <h2 id="displayItem" style="color:#0a3a66; margin-bottom:0.5rem;">-</h2>
+                <p style="color:#666;">Jumlah: <span id="displayQty" style="font-weight:700; color:#0a58ca;">0</span></p>
+                <div id="auctionStatus" class="status-badge status-ended">Tidak Ada Lelang</div>
+            </div>
 
-  <div class="card">
-    <div id="chatBox" class="chat-box"></div>
-    <input id="chatName" placeholder="Nama">
-    <input id="chatMsg" placeholder="Pesan">
-    <button onclick="sendChat()">Kirim</button>
-  </div>
-</div>
+            <div class="section-title"><i class="fas fa-trophy"></i> Bid Tertinggi</div>
+            <div class="big"><span id="highestBid">0</span> <small style="font-size:1.5rem;">BGL</small></div>
+            <div style="text-align:center; color:#666; margin-bottom:1rem;">
+                Oleh: <span id="highestBidder" style="font-weight:700; color:#0a3a66;">-</span>
+            </div>
 
-<div id="owner" class="container hidden">
-  <h2>📄 Owner Panel</h2>
+            <div class="timer" id="timer">
+                <i class="fas fa-clock"></i> --:--
+            </div>
+        </div>
 
-  <div id="loginBox">
-    <input type="password" id="ownerPass" placeholder="Password">
-    <button onclick="loginOwner()">Login</button>
-  </div>
+        <!-- Panel Chat -->
+        <div id="panelChat" class="panel">
+            <div class="section-title"><i class="fas fa-comment-dots"></i> Ruang Chat</div>
+            <div class="chat-box" id="chatMessages">
+                <div class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <p>Belum ada pesan. Mulai chat sekarang!</p>
+                </div>
+            </div>
+            <div class="flex-row">
+                <input class="input" id="chatInput" placeholder="Tulis pesan..." maxlength="200" onkeypress="if(event.key==='Enter')sendChat()">
+                <button class="btn" onclick="sendChat()" style="padding:1rem 1.5rem;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
 
-  <div id="ownerPanel" class="hidden">
-    <div class="card">
-      <input id="setItem" placeholder="Nama Item">
-      <input id="setJumlah" placeholder="Jumlah Item">
-      <input id="setWaktu" type="number" placeholder="Durasi (detik)">
-      <button onclick="setAuction()">Start Lelang</button>
+        <!-- Panel Bid -->
+        <div id="panelBid" class="panel">
+            <div class="section-title"><i class="fas fa-hand-holding-usd"></i> Place Your Bid</div>
+            
+            <div class="info-card">
+                <strong>Konversi:</strong> 1 BGL = 100 DL = 10,000 WL
+            </div>
+
+            <div class="flex-row">
+                <input type="number" class="input" id="bidAmount" placeholder="Jumlah" min="1" onkeypress="if(event.key==='Enter')placeBid()">
+                <select class="input" id="currency" style="flex:0.5;">
+                    <option value="BGL">BGL</option>
+                    <option value="DL">DL</option>
+                    <option value="WL">WL</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="placeBid()">
+                <i class="fas fa-gavel"></i> Place Bid
+            </button>
+
+            <div style="margin-top:2rem;">
+                <div class="section-title"><i class="fas fa-history"></i> Riwayat Bid</div>
+                <div class="history" id="bidHistory">
+                    <div class="empty-state">
+                        <i class="fas fa-history"></i>
+                        <p>Belum ada bid</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<div class="bottom-menu">
-  <div class="menu-btn" onclick="showPage('lelang')">📦 Lelang</div>
-  <div class="menu-btn" onclick="showPage('chat')">🗣️ Livechat</div>
-  <div class="menu-btn" onclick="showPage('owner')">📄 Owner ACC</div>
-</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, update, push, onValue, onChildAdded, get, query, limitToLast, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyC8QrDc5NiyyEZwl8sqBSVEPkymTkpgOiU",
+            authDomain: "leetopia-auction.firebaseapp.com",
+            databaseURL: "https://leetopia-auction-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "leetopia-auction",
+            storageBucket: "leetopia-auction.firebasestorage.app",
+            messagingSenderId: "396746559389",
+            appId: "1:396746559389:web:21fa42ddc49366b6106974"
+        };
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC8QrDc5NiyyEZwl8sqBSVEPkymTkpgOiU",
-  authDomain: "leetopia-auction.firebaseapp.com",
-  databaseURL: "https://leetopia-auction-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "leetopia-auction",
-  storageBucket: "leetopia-auction.firebasestorage.app",
-  messagingSenderId: "396746559389",
-  appId: "1:396746559389:web:21fa42ddc49366b6106974"
-};
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+        // State Management
+        let currentGrowID = localStorage.getItem("growid") || "PlayerGTPS";
+        let isOwner = false;
+        let timerInt = null;
+        let currentAuction = null;
 
-window.showPage = function(page){
-  document.getElementById("lelang").classList.add("hidden");
-  document.getElementById("chat").classList.add("hidden");
-  document.getElementById("owner").classList.add("hidden");
-  document.getElementById(page).classList.remove("hidden");
-}
+        // Initialize
+        document.getElementById("growidInput").value = currentGrowID;
+        document.getElementById("growidText").innerText = currentGrowID;
 
-window.placeBid = function(){
-  let name = document.getElementById("growid").value;
-  let amount = document.getElementById("bidAmount").value;
+        // Panel Switching
+        window.switchPanel = function(p) {
+            document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+            document.getElementById("panel" + capitalize(p)).classList.add("active");
+            document.querySelectorAll(".nav button").forEach(x => x.classList.remove("active"));
+            document.getElementById("tab" + capitalize(p)).classList.add("active");
+        };
 
-  if(!name || !amount) return;
+        function capitalize(t) {
+            return t.charAt(0).toUpperCase() + t.slice(1);
+        }
 
-  push(ref(db,"bids"), {
-    name: name,
-    amount: parseInt(amount)
-  });
-}
+        // Profile Functions
+        window.saveProfile = function() {
+            const val = document.getElementById("growidInput").value.trim();
+            if (val && val.length >= 3) {
+                currentGrowID = val;
+                localStorage.setItem("growid", val);
+                document.getElementById("growidText").innerText = val;
+                alert("Profil berhasil disimpan!");
+            } else {
+                alert("GrowID minimal 3 karakter!");
+            }
+        };
 
-onValue(ref(db,"bids"), snapshot=>{
-  let data = snapshot.val();
-  let highest = 0;
-  let bidder = "-";
-  let list = "";
+        // Owner Functions
+        window.ownerLogin = function() {
+            const pass = document.getElementById("ownerPass").value;
+            if (pass === "12345") {
+                isOwner = true;
+                document.getElementById("ownerPanel").style.display = "block";
+                document.getElementById("ownerPass").value = "";
+                alert("Login Owner berhasil!");
+            } else {
+                alert("Password salah!");
+            }
+        };
 
-  for(let id in data){
-    list += `<p>${data[id].name} : ${data[id].amount} BGL</p>`;
-    if(data[id].amount > highest){
-      highest = data[id].amount;
-      bidder = data[id].name;
-    }
-  }
+        window.createAuction = function() {
+            if (!isOwner) return alert("Anda bukan owner!");
+            
+            const name = document.getElementById("itemName").value.trim();
+            const qty = document.getElementById("itemQty").value.trim();
+            const img = document.getElementById("itemImg").value.trim();
+            const duration = parseInt(document.getElementById("duration").value) || 5;
 
-  document.getElementById("highestBid").innerText = highest;
-  document.getElementById("highestBidder").innerText = bidder;
-  document.getElementById("bidList").innerHTML = list;
-});
+            if (!name || !qty) {
+                return alert("Nama item dan jumlah wajib diisi!");
+            }
 
-window.setAuction = function(){
-  let item = document.getElementById("setItem").value;
-  let jumlah = document.getElementById("setJumlah").value;
-  let waktu = document.getElementById("setWaktu").value;
+            const endTime = Date.now() + duration * 60000;
+            
+            set(ref(db, "auction/current"), {
+                itemName: name,
+                itemQty: qty,
+                imageUrl: img || "https://placehold.co/120x120?text=" + encodeURIComponent(name),
+                highestBid: 0,
+                highestBidder: "-",
+                endTime: endTime,
+                status: "active",
+                createdBy: currentGrowID,
+                createdAt: Date.now()
+            }).then(() => {
+                set(ref(db, "bids"), null);
+                alert("Lelang dimulai!");
+                // Clear inputs
+                document.getElementById("itemName").value = "";
+                document.getElementById("itemQty").value = "";
+                document.getElementById("itemImg").value = "";
+                document.getElementById("duration").value = "";
+            }).catch(err => alert("Error: " + err.message));
+        };
 
-  set(ref(db,"auction"), {
-    item: item,
-    jumlah: jumlah,
-    time: parseInt(waktu)
-  });
+        window.endAuctionEarly = function() {
+            if (!isOwner) return alert("Anda bukan owner!");
+            if (!currentAuction || currentAuction.status !== "active") {
+                return alert("Tidak ada lelang aktif!");
+            }
+            
+            if (confirm("Yakin ingin mengakhiri lelang sekarang?")) {
+                update(ref(db, "auction/current"), {
+                    status: "ended",
+                    endTime: Date.now()
+                });
+            }
+        };
 
-  set(ref(db,"bids"), null);
-}
+        // Currency Conversion
+        function convert(amount, currency) {
+            switch(currency) {
+                case "DL": return amount * 100;
+                case "WL": return amount / 100;
+                default: return amount;
+            }
+        }
 
-onValue(ref(db,"auction"), snapshot=>{
-  let data = snapshot.val();
-  if(!data) return;
+        // Bid Functions
+        window.placeBid = function() {
+            const amt = parseFloat(document.getElementById("bidAmount").value);
+            if (!amt || amt <= 0) {
+                return alert("Masukkan jumlah bid yang valid!");
+            }
 
-  document.getElementById("itemName").innerText = "Item: " + data.item;
-  document.getElementById("itemJumlah").innerText = "Jumlah: " + data.jumlah;
-  document.getElementById("timer").innerText = data.time;
+            const cur = document.getElementById("currency").value;
+            const bidVal = convert(amt, cur);
 
-  let time = data.time;
-  setInterval(()=>{
-    if(time > 0){
-      time--;
-      document.getElementById("timer").innerText = time;
-    }
-  },1000);
-});
+            get(ref(db, "auction/current")).then(s => {
+                const d = s.val();
+                if (!d || d.status !== "active") {
+                    return alert("Tidak ada lelang aktif!");
+                }
+                
+                if (Date.now() > d.endTime) {
+                    return alert("Lelang sudah selesai!");
+                }
+                
+                if (bidVal <= d.highestBid) {
+                    return alert("Bid harus lebih tinggi dari " + d.highestBid + " BGL!");
+                }
 
-window.loginOwner = function(){
-  let pass = document.getElementById("ownerPass").value;
-  if(pass === "12345"){
-    document.getElementById("loginBox").classList.add("hidden");
-    document.getElementById("ownerPanel").classList.remove("hidden");
-  }else{
-    alert("Password salah!");
-  }
-}
+                // Update auction
+                update(ref(db, "auction/current"), {
+                    highestBid: bidVal,
+                    highestBidder: currentGrowID
+                });
 
-window.sendChat = function(){
-  let name = document.getElementById("chatName").value;
-  let msg = document.getElementById("chatMsg").value;
-  if(!name || !msg) return;
+                // Add to history
+                push(ref(db, "bids"), {
+                    growid: currentGrowID,
+                    amount: bidVal,
+                    currency: cur,
+                    originalAmount: amt,
+                    timestamp: Date.now()
+                });
 
-  push(ref(db,"chat"), {
-    name:name,
-    msg:msg
-  });
-}
+                document.getElementById("bidAmount").value = "";
+                alert("Bid berhasil!");
+            }).catch(err => alert("Error: " + err.message));
+        };
 
-onValue(ref(db,"chat"), snapshot=>{
-  let data = snapshot.val();
-  let list="";
-  for(let id in data){
-    list+=`<p><b>${data[id].name}</b>: ${data[id].msg}</p>`;
-  }
-  document.getElementById("chatBox").innerHTML=list;
-});
-</script>
+        // Chat Functions
+        window.sendChat = function() {
+            const text = document.getElementById("chatInput").value.trim();
+            if (!text) return;
+            
+            if (text.length > 200) {
+                return alert("Pesan terlalu panjang (max 200 karakter)!");
+            }
 
+            push(ref(db, "chat"), {
+                growid: currentGrowID,
+                message: text,
+                timestamp: Date.now()
+            }).then(() => {
+                document.getElementById("chatInput").value = "";
+            }).catch(err => alert("Error mengirim pesan!"));
+        };
+
+        // Realtime Listeners
+        onValue(ref(db, "auction/current"), s => {
+            const d = s.val();
+            currentAuction = d;
+            
+            if (!d) {
+                document.getElementById("displayItem").innerText = "-";
+                document.getElementById("displayQty").innerText = "0";
+                document.getElementById("displayImg").src = "https://placehold.co/120x120?text=No+Item";
+                document.getElementById("highestBid").innerText = "0";
+                document.getElementById("highestBidder").innerText = "-";
+                document.getElementById("timer").innerHTML = '<i class="fas fa-clock"></i> --:--';
+                document.getElementById("auctionStatus").className = "status-badge status-ended";
+                document.getElementById("auctionStatus").innerText = "Tidak Ada Lelang";
+                if (timerInt) clearInterval(timerInt);
+                return;
+            }
+
+            document.getElementById("displayItem").innerText = d.itemName || "-";
+            document.getElementById("displayQty").innerText = d.itemQty || 0;
+            document.getElementById("displayImg").src = d.imageUrl || "https://placehold.co/120x120?text=No+Image";
+            document.getElementById("highestBid").innerText = d.highestBid || 0;
+            document.getElementById("highestBidder").innerText = d.highestBidder || "-";
+            
+            const statusEl = document.getElementById("auctionStatus");
+            if (d.status === "active" && Date.now() < d.endTime) {
+                statusEl.className = "status-badge status-active";
+                statusEl.innerText = "Lelang Aktif";
+            } else {
+                statusEl.className = "status-badge status-ended";
+                statusEl.innerText = "Lelang Selesai";
+            }
+
+            if (timerInt) clearInterval(timerInt);
+            
+            timerInt = setInterval(() => {
+                const remaining = d.endTime - Date.now();
+                const timerEl = document.getElementById("timer");
+                
+                if (remaining <= 0 || d.status === "ended") {
+                    timerEl.innerHTML = '<i class="fas fa-flag-checkered"></i> SELESAI';
+                    timerEl.classList.add("ended");
+                    clearInterval(timerInt);
+                } else {
+                    const mins = Math.floor(remaining / 60000);
+                    const secs = Math.floor((remaining % 60000) / 1000);
+                    timerEl.innerHTML = `<i class="fas fa-clock"></i> ${mins}m ${secs.toString().padStart(2, '0')}s`;
+                    timerEl.classList.remove("ended");
+                }
+            }, 1000);
+        });
+
+        // Bid History Listener
+        const hist = document.getElementById("bidHistory");
+        onChildAdded(query(ref(db, "bids"), limitToLast(20)), s => {
+            const b = s.val();
+            if (!b) return;
+            
+            // Remove empty state if exists
+            if (hist.querySelector(".empty-state")) {
+                hist.innerHTML = "";
+            }
+            
+            const div = document.createElement("div");
+            div.className = "chat-bubble";
+            div.style.animation = "slideIn 0.3s ease";
+            div.innerHTML = `
+                <b>${b.growid}</b> 
+                <span style="color:#0a58ca; font-weight:700;">${b.amount} BGL</span>
+                <small style="color:#999; display:block; font-size:0.75rem;">
+                    ${b.currency} ${b.originalAmount} • ${new Date(b.timestamp).toLocaleTimeString()}
+                </small>
+            `;
+            hist.prepend(div);
+        });
+
+        // Chat Listener
+        const chatDiv = document.getElementById("chatMessages");
+        onChildAdded(query(ref(db, "chat"), limitToLast(50)), s => {
+            const c = s.val();
+            if (!c) return;
+            
+            // Remove empty state if exists
+            if (chatDiv.querySelector(".empty-state")) {
+                chatDiv.innerHTML = "";
+            }
+            
+            const div = document.createElement("div");
+            div.className = "chat-bubble" + (c.growid === currentGrowID ? " own" : "");
+            div.innerHTML = `<b>${c.growid}</b><br>${escapeHtml(c.message)}`;
+            chatDiv.appendChild(div);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        });
+
+        // Utility
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Cleanup on unload
+        window.addEventListener('beforeunload', () => {
+            if (timerInt) clearInterval(timerInt);
+        });
+    </script>
 </body>
 </html>
