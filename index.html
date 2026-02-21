@@ -1032,19 +1032,11 @@
             }
         };
 
-        // BUG FIX 1: Register Function - Pastikan semua field terisi dengan benar
+        // Register Function - Simplified
         window.register = async function() {
-            console.log("Register function called"); // Debug
-            
-            const usernameInput = document.getElementById('regUsername');
-            const passwordInput = document.getElementById('regPassword');
-            const growidInput = document.getElementById('regGrowID');
-            
-            const username = usernameInput.value.trim().toLowerCase();
-            const password = passwordInput.value;
-            const growid = growidInput.value.trim();
-
-            console.log("Data:", { username, password, growid }); // Debug
+            const username = document.getElementById('regUsername').value.trim().toLowerCase();
+            const password = document.getElementById('regPassword').value;
+            const growid = document.getElementById('regGrowID').value.trim();
 
             if (!username || !password || !growid) {
                 return showNotification("Semua field harus diisi!", "error");
@@ -1058,7 +1050,7 @@
                 // Check if username exists
                 const snap = await get(ref(db, `accounts/${username}`));
                 if (snap.exists()) {
-                    return showNotification("Username sudah terdaftar! Gunakan username lain.", "error");
+                    return showNotification("Username sudah terdaftar!", "error");
                 }
 
                 // Create account
@@ -1068,23 +1060,22 @@
                     createdAt: Date.now()
                 });
 
-                // Initialize user balance with 0
+                // Initialize balance
                 await set(ref(db, `users/${growid}/balance`), 0);
 
                 showNotification("Akun berhasil dibuat! Silakan login.", "success");
                 
-                // Clear form and switch to login
-                usernameInput.value = '';
-                passwordInput.value = '';
-                growidInput.value = '';
+                // Clear and switch
+                document.getElementById('regUsername').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regGrowID').value = '';
                 switchAuthTab('login');
             } catch (error) {
-                console.error("Register error:", error);
-                showNotification("Error saat mendaftar: " + error.message, "error");
+                showNotification("Error: " + error.message, "error");
             }
         };
 
-        // Login Function
+        // Login Function - Simplified
         window.login = async function() {
             const username = document.getElementById('loginUsername').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value;
@@ -1104,7 +1095,6 @@
                     return showNotification("Password salah!", "error");
                 }
 
-                // Set current user
                 currentUser = {
                     username: username,
                     growid: account.growid,
@@ -1115,8 +1105,7 @@
                 showNotification(`Selamat datang, ${account.growid}!`, "success");
                 showMainApp();
             } catch (error) {
-                console.error("Login error:", error);
-                showNotification("Error saat login: " + error.message, "error");
+                showNotification("Error: " + error.message, "error");
             }
         };
 
@@ -1215,20 +1204,16 @@
             }
         }
 
-        // BUG FIX 2 & 3: Search Player dengan error handling yang lebih baik
+        // Search Player - Simplified
         window.searchPlayer = async function() {
-            const usernameInput = document.getElementById('targetUsername');
-            const username = usernameInput.value.trim().toLowerCase();
+            const username = document.getElementById('targetUsername').value.trim().toLowerCase();
             
             if (!username) {
                 return showNotification("Masukkan username player!", "error");
             }
 
             try {
-                console.log("Searching for:", username); // Debug
-                
                 const snap = await get(ref(db, `accounts/${username}`));
-                console.log("Account found:", snap.exists()); // Debug
                 
                 if (!snap.exists()) {
                     document.getElementById('playerInfo').style.display = 'none';
@@ -1238,20 +1223,11 @@
                 const account = snap.val();
                 currentTargetGrowID = account.growid;
                 
-                console.log("GrowID:", currentTargetGrowID); // Debug
-                
-                // Get current balance dengan error handling
-                let balance = 0;
-                try {
-                    const balanceSnap = await get(ref(db, `users/${currentTargetGrowID}/balance`));
-                    balance = balanceSnap.exists() ? balanceSnap.val() : 0;
-                    console.log("Balance:", balance); // Debug
-                } catch (e) {
-                    console.log("Balance not found, defaulting to 0");
-                    balance = 0;
-                }
+                // Get balance
+                const balanceSnap = await get(ref(db, `users/${currentTargetGrowID}/balance`));
+                const balance = balanceSnap.exists() ? balanceSnap.val() : 0;
 
-                // Tampilkan info
+                // Show info
                 document.getElementById('foundUsername').innerText = username;
                 document.getElementById('foundGrowID').innerText = account.growid;
                 document.getElementById('foundBalance').innerText = balance.toLocaleString();
@@ -1259,38 +1235,32 @@
                 
                 showNotification(`Player ${username} ditemukan! Saldo: ${balance} BGL`, "success");
             } catch (error) {
-                console.error("Search player error:", error);
-                showNotification("Error saat mencari player: " + error.message, "error");
+                showNotification("Error: " + error.message, "error");
             }
         };
 
-        // BUG FIX 3: Give BGL dengan error handling lengkap
+        // Give BGL - Simplified
         window.giveBGL = async function() {
             if (!currentTargetGrowID) {
                 return showNotification("Cari player terlebih dahulu!", "error");
             }
 
-            const amountInput = document.getElementById('bglAmount');
-            const amount = parseFloat(amountInput.value);
+            const amount = parseFloat(document.getElementById('bglAmount').value);
             
             if (!amount || amount <= 0) {
                 return showNotification("Masukkan jumlah BGL yang valid!", "error");
             }
 
             try {
-                console.log("Giving BGL:", amount, "to", currentTargetGrowID); // Debug
-                
                 // Get current balance
                 const snap = await get(ref(db, `users/${currentTargetGrowID}/balance`));
                 const currentBal = snap.exists() ? snap.val() : 0;
                 const newBal = currentBal + amount;
 
-                console.log("Current balance:", currentBal, "New balance:", newBal); // Debug
-
                 // Update balance
                 await set(ref(db, `users/${currentTargetGrowID}/balance`), newBal);
 
-                // Add transaction record
+                // Add transaction
                 await push(ref(db, `users/${currentTargetGrowID}/transactions`), {
                     type: 'deposit',
                     amount: amount,
@@ -1299,49 +1269,43 @@
                     note: `Deposit ${amount} BGL dari Owner`
                 });
 
-                // Send notification to player
+                // Notify player
                 await push(ref(db, `private/${currentTargetGrowID}/system`), {
                     from: 'SYSTEM',
-                    message: `🎁 Anda menerima ${amount} BGL dari Owner! Saldo sekarang: ${newBal} BGL`,
+                    message: `🎁 Anda menerima ${amount} BGL dari Owner! Saldo: ${newBal} BGL`,
                     timestamp: Date.now(),
                     type: 'notification'
                 });
 
                 // Update display
                 document.getElementById('foundBalance').innerText = newBal.toLocaleString();
-                amountInput.value = '';
+                document.getElementById('bglAmount').value = '';
                 
                 showNotification(`Berhasil memberikan ${amount} BGL!`, "success");
             } catch (error) {
-                console.error("Give BGL error:", error);
-                showNotification("Error saat memberi BGL: " + error.message, "error");
+                showNotification("Error: " + error.message, "error");
             }
         };
 
-        // BUG FIX 3: Take BGL dengan error handling lengkap
+        // Take BGL - Simplified
         window.takeBGL = async function() {
             if (!currentTargetGrowID) {
                 return showNotification("Cari player terlebih dahulu!", "error");
             }
 
-            const amountInput = document.getElementById('bglAmount');
-            const amount = parseFloat(amountInput.value);
+            const amount = parseFloat(document.getElementById('bglAmount').value);
             
             if (!amount || amount <= 0) {
                 return showNotification("Masukkan jumlah BGL yang valid!", "error");
             }
 
             try {
-                console.log("Taking BGL:", amount, "from", currentTargetGrowID); // Debug
-                
                 // Get current balance
                 const snap = await get(ref(db, `users/${currentTargetGrowID}/balance`));
                 const currentBal = snap.exists() ? snap.val() : 0;
 
-                console.log("Current balance:", currentBal); // Debug
-
                 if (currentBal < amount) {
-                    return showNotification(`Saldo player tidak cukup! Saldo: ${currentBal} BGL`, "error");
+                    return showNotification(`Saldo tidak cukup! Saldo: ${currentBal} BGL`, "error");
                 }
 
                 const newBal = currentBal - amount;
@@ -1349,7 +1313,7 @@
                 // Update balance
                 await set(ref(db, `users/${currentTargetGrowID}/balance`), newBal);
 
-                // Add transaction record
+                // Add transaction
                 await push(ref(db, `users/${currentTargetGrowID}/transactions`), {
                     type: 'withdraw',
                     amount: -amount,
@@ -1358,22 +1322,21 @@
                     note: `Withdraw ${amount} BGL oleh Owner`
                 });
 
-                // Send notification to player
+                // Notify player
                 await push(ref(db, `private/${currentTargetGrowID}/system`), {
                     from: 'SYSTEM',
-                    message: `⚠️ Owner menarik ${amount} BGL dari akun Anda. Saldo sekarang: ${newBal} BGL`,
+                    message: `⚠️ Owner menarik ${amount} BGL. Saldo: ${newBal} BGL`,
                     timestamp: Date.now(),
                     type: 'notification'
                 });
 
                 // Update display
                 document.getElementById('foundBalance').innerText = newBal.toLocaleString();
-                amountInput.value = '';
+                document.getElementById('bglAmount').value = '';
                 
                 showNotification(`Berhasil menarik ${amount} BGL!`, "success");
             } catch (error) {
-                console.error("Take BGL error:", error);
-                showNotification("Error saat menarik BGL: " + error.message, "error");
+                showNotification("Error: " + error.message, "error");
             }
         };
 
