@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lelang GTPS Pro • Password System</title>
+    <title>Lelang GTPS Pro • ZupediaWeb</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -548,6 +548,22 @@
             font-weight: 700;
         }
         
+        .password-display {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 1rem 0;
+            border: 2px dashed #0a58ca;
+        }
+        
+        .password-display code {
+            font-size: 1.2rem;
+            color: #0a3a66;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
         @media (max-width: 768px) {
             .private-chat-container {
                 grid-template-columns: 1fr;
@@ -643,9 +659,12 @@
                     <button class="btn btn-success" onclick="ownerLogin()">
                         <i class="fas fa-lock"></i> Login Owner
                     </button>
-                    <p style="margin-top:1rem; color:#666; font-size:0.9rem; text-align:center;">
-                        <i class="fas fa-info-circle"></i> Default password: <strong>admin123</strong>
-                    </p>
+                    
+                    <div class="password-display">
+                        <p style="margin-bottom:0.5rem; color:#666; font-size:0.9rem;"><i class="fas fa-key"></i> Password Saat Ini:</p>
+                        <code>zupediaweb</code>
+                        <p style="margin-top:0.5rem; color:#999; font-size:0.8rem;">Password bisa diganti setelah login</p>
+                    </div>
                 </div>
 
                 <!-- Owner Panel -->
@@ -706,10 +725,10 @@
                     <div id="securityControl" style="display:none;">
                         <div class="info-card" style="border-left-color: #ffc107;">
                             <strong><i class="fas fa-exclamation-triangle"></i> Ganti Password Owner</strong>
-                            <p style="margin-top:0.5rem; color:#666; font-size:0.9rem;">Pastikan password kuat dan mudah diingat!</p>
+                            <p style="margin-top:0.5rem; color:#666; font-size:0.9rem;">Password saat ini: <strong>zupediaweb</strong></p>
                         </div>
 
-                        <input type="password" id="currentPass" class="input" placeholder="Password Saat Ini">
+                        <input type="password" id="currentPass" class="input" placeholder="Password Saat Ini (zupediaweb)">
                         <input type="password" id="newPass" class="input" placeholder="Password Baru" oninput="checkPasswordStrength()">
                         
                         <div class="password-strength">
@@ -917,6 +936,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // DEFAULT PASSWORD - GANTI DI SINI JIKA PERLU
+        const DEFAULT_PASSWORD = "zupediaweb";
+
         // State
         let currentGrowID = localStorage.getItem("growid") || "PlayerGTPS";
         let isOwner = false;
@@ -939,7 +961,8 @@
             const savedPass = localStorage.getItem("ownerPass");
             if (savedPass) {
                 const snap = await get(ref(db, "config/ownerPassword"));
-                if (snap.exists() && snap.val() === savedPass) {
+                const currentPass = snap.exists() ? snap.val() : DEFAULT_PASSWORD;
+                if (savedPass === currentPass) {
                     isOwner = true;
                     document.getElementById("ownerLoginForm").style.display = "none";
                     document.getElementById("ownerPanel").style.display = "block";
@@ -980,16 +1003,16 @@
         window.ownerLogin = async function() {
             const inputPass = document.getElementById("ownerPass").value;
             
-            // Get password from Firebase (default: admin123)
+            // Get password from Firebase (default: zupediaweb)
             const passRef = ref(db, "config/ownerPassword");
             const snap = await get(passRef);
             
-            let correctPass = "admin123"; // Default password
+            let correctPass = DEFAULT_PASSWORD;
             if (snap.exists()) {
                 correctPass = snap.val();
             } else {
                 // Set default if not exists
-                await set(passRef, "admin123");
+                await set(passRef, DEFAULT_PASSWORD);
             }
 
             if (inputPass === correctPass) {
@@ -1060,7 +1083,7 @@
 
             // Verify current password
             const snap = await get(ref(db, "config/ownerPassword"));
-            const storedPass = snap.exists() ? snap.val() : "admin123";
+            const storedPass = snap.exists() ? snap.val() : DEFAULT_PASSWORD;
 
             if (current !== storedPass) {
                 return showNotification("Password saat ini salah!", "error");
@@ -1086,6 +1109,9 @@
             document.getElementById("confirmPass").value = "";
             document.getElementById("strengthBar").className = "password-strength-bar";
             document.getElementById("strengthText").innerText = "";
+            
+            // Update display
+            document.querySelector('.password-display code').innerText = newPass;
             
             showNotification("Password berhasil diubah!", "success");
         };
