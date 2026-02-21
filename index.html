@@ -3,23 +3,836 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lelang GTPS | Modern Auction</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FontAwesome -->
+    <title>Lelang GTPS Pro • Sistem Lengkap</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Inter, system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .gtps-app {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #0a3a66 0%, #1e5f8e 100%);
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .header h1 i {
+            margin-right: 10px;
+            color: #ffd700;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .balance-display {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 2px solid #ffd700;
+            font-weight: 700;
+            color: #ffd700;
+        }
+        
+        #growidDisplay {
+            cursor: pointer;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            background: #fafafa;
+            overflow-x: auto;
+        }
+        
+        .nav button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 0.9rem;
+            min-width: 80px;
+        }
+        
+        .nav button i {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+        
+        .nav button.active {
+            color: #0a58ca;
+            background: #f0f7ff;
+        }
+        
+        .nav button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #0a58ca;
+        }
+        
+        .panel {
+            display: none;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .panel.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            border: 2px solid #e0e0e0;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .input:focus {
+            border-color: #0a58ca;
+            box-shadow: 0 0 0 3px rgba(10, 88, 202, 0.1);
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #0a3a66 0%, #1e5f8e 100%);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(10, 58, 102, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: #000;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
+        
+        .auction-box {
+            background: linear-gradient(135deg, #f5f9ff 0%, #e3efff 100%);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            border: 2px solid #d0e3ff;
+        }
+        
+        .auction-box img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .big {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #0a3a66;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .timer {
+            background: linear-gradient(135deg, #0a3a66 0%, #1e5f8e 100%);
+            color: white;
+            padding: 1.2rem;
+            border-radius: 50px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .timer.ended {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            background: #f5faff;
+            padding: 1rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .chat-bubble {
+            background: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 20px;
+            margin-bottom: 0.8rem;
+            border: 1px solid #e0e0e0;
+            max-width: 80%;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .chat-bubble.own {
+            background: linear-gradient(135deg, #d9ebff 0%, #c3e0ff 100%);
+            margin-left: auto;
+            border-color: #b3d7ff;
+        }
+        
+        .chat-bubble.system {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+            border-color: #ffc107;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 90%;
+        }
+        
+        .chat-bubble.winner {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-color: #28a745;
+            border-width: 2px;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .history {
+            background: #f5faff;
+            padding: 1rem;
+            border-radius: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: #0a3a66;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #0a58ca;
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .flex-row .input {
+            flex: 1;
+        }
+        
+        .flex-row .btn {
+            width: auto;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-ended {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .private-chat-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 1rem;
+            height: 400px;
+        }
+        
+        .chat-list {
+            background: #f5faff;
+            border-radius: 15px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .chat-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .chat-item:hover {
+            background: #e3efff;
+        }
+        
+        .chat-item.active {
+            background: #0a58ca;
+            color: white;
+        }
+        
+        .chat-item.unread {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .chat-window {
+            display: flex;
+            flex-direction: column;
+            background: #f5faff;
+            border-radius: 15px;
+            border: 2px solid #e0e0e0;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            padding: 1rem;
+            background: #0a3a66;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        
+        .chat-input-area {
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalSlide 0.3s ease;
+        }
+        
+        @keyframes modalSlide {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .close-modal {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 2000;
+            animation: slideRight 0.3s ease;
+            max-width: 300px;
+        }
+        
+        @keyframes slideRight {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+        
+        .notification.success { background: #28a745; }
+        .notification.error { background: #dc3545; }
+        .notification.info { background: #17a2b8; }
+        .notification.warning { background: #ffc107; color: #000; }
+        
+        .transaction-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        
+        .transaction-item.deposit {
+            border-left: 4px solid #28a745;
+        }
+        
+        .transaction-item.withdraw {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .amount-positive { color: #28a745; font-weight: 700; }
+        .amount-negative { color: #dc3545; font-weight: 700; }
+        
+        @media (max-width: 768px) {
+            .private-chat-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-list {
+                display: none;
+            }
+            
+            .chat-list.mobile-visible {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 80%;
+                height: 100%;
+                z-index: 999;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-group .btn {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f5f9ff 0%, #e3efff 100%);
+            padding: 1rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #d0e3ff;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0a3a66;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="gtps-app">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-gavel"></i>LELANG GTPS PRO</h1>
+            <div class="user-info">
+                <div class="balance-display">
+                    <i class="fas fa-coins"></i> <span id="userBalance">0</span> BGL
+                </div>
+                <div onclick="switchPanel('profile')" id="growidDisplay">
+                    <i class="fas fa-user"></i> <span id="growidText">PlayerGTPS</span>
+                </div>
+            </div>
+        </div>
 
-    <!-- Firebase -->
+        <!-- Navigation -->
+        <div class="nav">
+            <button id="tabProfile" class="active" onclick="switchPanel('profile')">
+                <i class="fas fa-user-circle"></i>
+                Profil
+            </button>
+            <button id="tabAuction" onclick="switchPanel('auction')">
+                <i class="fas fa-gavel"></i>
+                Lelang
+            </button>
+            <button id="tabWallet" onclick="switchPanel('wallet')">
+                <i class="fas fa-wallet"></i>
+                Dompet
+            </button>
+            <button id="tabChat" onclick="switchPanel('chat')">
+                <i class="fas fa-comments"></i>
+                Chat
+                <span id="chatBadge" style="display:none; background:#dc3545; color:white; padding:2px 6px; border-radius:10px; font-size:0.7rem; margin-left:5px;">0</span>
+            </button>
+            <button id="tabPrivate" onclick="switchPanel('private')">
+                <i class="fas fa-envelope"></i>
+                Pesan
+                <span id="privateBadge" style="display:none; background:#dc3545; color:white; padding:2px 6px; border-radius:10px; font-size:0.7rem; margin-left:5px;">0</span>
+            </button>
+            <button id="tabBid" onclick="switchPanel('bid')">
+                <i class="fas fa-hand-holding-usd"></i>
+                Bid
+            </button>
+        </div>
+
+        <!-- Panel Profil -->
+        <div id="panelProfile" class="panel active">
+            <div class="section-title"><i class="fas fa-user-edit"></i> Pengaturan Profil</div>
+            
+            <div class="input-group">
+                <label style="display:block; margin-bottom:0.5rem; color:#666; font-weight:600;">GrowID Anda</label>
+                <input class="input" id="growidInput" placeholder="Masukkan GrowID" maxlength="20">
+                <button class="btn" onclick="saveProfile()">
+                    <i class="fas fa-save"></i> Simpan Profil
+                </button>
+            </div>
+
+            <div style="margin-top:2rem; border-top:2px solid #eee; padding-top:1.5rem;">
+                <div class="section-title"><i class="fas fa-shield-alt"></i> Area Owner</div>
+                <input type="password" id="ownerPass" class="input" placeholder="Password Owner">
+                <button class="btn btn-success" onclick="ownerLogin()">
+                    <i class="fas fa-lock"></i> Login Owner
+                </button>
+
+                <div id="ownerPanel" style="display:none; margin-top:1.5rem;">
+                    <div class="info-card">
+                        <strong><i class="fas fa-info-circle"></i> Panel Owner</strong>
+                        <p style="margin-top:0.5rem; color:#666; font-size:0.9rem;">Kelola lelang dan saldo pemain</p>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn" onclick="showSection('auctionControl')">
+                            <i class="fas fa-gavel"></i> Lelang
+                        </button>
+                        <button class="btn btn-warning" onclick="showSection('balanceControl')">
+                            <i class="fas fa-coins"></i> Saldo
+                        </button>
+                    </div>
+
+                    <!-- Auction Control -->
+                    <div id="auctionControl">
+                        <input class="input" id="itemName" placeholder="Nama Item">
+                        <input class="input" id="itemQty" placeholder="Jumlah Item">
+                        <input class="input" id="itemImg" placeholder="URL Gambar Item">
+                        <input class="input" id="duration" placeholder="Durasi (menit)" type="number" min="1">
+                        <input class="input" id="minBid" placeholder="Bid Minimal (BGL)" type="number" value="1">
+                        
+                        <button class="btn btn-danger" onclick="createAuction()">
+                            <i class="fas fa-play-circle"></i> Mulai Lelang
+                        </button>
+                        <button class="btn" onclick="endAuctionEarly()">
+                            <i class="fas fa-stop-circle"></i> Akhiri Lelang
+                        </button>
+                    </div>
+
+                    <!-- Balance Control -->
+                    <div id="balanceControl" style="display:none;">
+                        <input class="input" id="targetGrowID" placeholder="GrowID Pemain">
+                        <input class="input" id="balanceAmount" placeholder="Jumlah BGL" type="number">
+                        
+                        <div class="btn-group">
+                            <button class="btn btn-success" onclick="manageBalance('deposit')">
+                                <i class="fas fa-plus"></i> Deposit
+                            </button>
+                            <button class="btn btn-danger" onclick="manageBalance('withdraw')">
+                                <i class="fas fa-minus"></i> Withdraw
+                            </button>
+                        </div>
+                        
+                        <button class="btn btn-info" onclick="checkPlayerBalance()">
+                            <i class="fas fa-search"></i> Cek Saldo Pemain
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Lelang -->
+        <div id="panelAuction" class="panel">
+            <div class="section-title"><i class="fas fa-box-open"></i> Item Saat Ini</div>
+            
+            <div class="auction-box">
+                <img id="displayImg" src="https://placehold.co/120x120?text=No+Item" alt="Item">
+                <h2 id="displayItem" style="color:#0a3a66; margin-bottom:0.5rem;">-</h2>
+                <p style="color:#666;">Jumlah: <span id="displayQty" style="font-weight:700; color:#0a58ca;">0</span></p>
+                <p style="color:#666; margin-top:0.5rem;">Bid Minimal: <span id="minBidDisplay" style="font-weight:700; color:#28a745;">0</span> BGL</p>
+                <div id="auctionStatus" class="status-badge status-ended">Tidak Ada Lelang</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalBids">0</div>
+                    <div class="stat-label">Total Bid</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="participantCount">0</div>
+                    <div class="stat-label">Peserta</div>
+                </div>
+            </div>
+
+            <div class="section-title"><i class="fas fa-trophy"></i> Bid Tertinggi</div>
+            <div class="big"><span id="highestBid">0</span> <small style="font-size:1.5rem;">BGL</small></div>
+            <div style="text-align:center; color:#666; margin-bottom:1rem;">
+                Oleh: <span id="highestBidder" style="font-weight:700; color:#0a3a66;">-</span>
+            </div>
+
+            <div class="timer" id="timer">
+                <i class="fas fa-clock"></i> --:--
+            </div>
+        </div>
+
+        <!-- Panel Dompet -->
+        <div id="panelWallet" class="panel">
+            <div class="section-title"><i class="fas fa-wallet"></i> Dompet Saya</div>
+            
+            <div class="auction-box" style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); border-color: #ffc107;">
+                <h3 style="color:#856404; margin-bottom:1rem;">Saldo Tersedia</h3>
+                <div class="big" style="color:#856404;"><span id="walletBalance">0</span> BGL</div>
+                <p style="color:#856404;">Equivalent: <span id="equivalentDL">0</span> DL | <span id="equivalentWL">0</span> WL</p>
+            </div>
+
+            <div class="section-title"><i class="fas fa-history"></i> Riwayat Transaksi</div>
+            <div class="history" id="transactionHistory">
+                <div class="empty-state" style="text-align:center; padding:2rem; color:#666;">
+                    <i class="fas fa-receipt" style="font-size:3rem; margin-bottom:1rem; color:#ccc;"></i>
+                    <p>Belum ada transaksi</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Chat Publik -->
+        <div id="panelChat" class="panel">
+            <div class="section-title"><i class="fas fa-comment-dots"></i> Ruang Chat Publik</div>
+            <div class="chat-box" id="chatMessages">
+                <div class="empty-state" style="text-align:center; padding:2rem; color:#666;">
+                    <i class="fas fa-comments" style="font-size:3rem; margin-bottom:1rem; color:#ccc;"></i>
+                    <p>Belum ada pesan. Mulai chat sekarang!</p>
+                </div>
+            </div>
+            <div class="flex-row">
+                <input class="input" id="chatInput" placeholder="Tulis pesan..." maxlength="200" onkeypress="if(event.key==='Enter')sendChat()">
+                <button class="btn" onclick="sendChat()" style="padding:1rem 1.5rem;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Chat Pribadi -->
+        <div id="panelPrivate" class="panel">
+            <div class="section-title"><i class="fas fa-envelope"></i> Pesan Pribadi</div>
+            
+            <div class="private-chat-container">
+                <div class="chat-list" id="privateChatList">
+                    <div style="padding:1rem; color:#666; text-align:center;">
+                        <i class="fas fa-inbox" style="font-size:2rem; margin-bottom:0.5rem;"></i>
+                        <p style="font-size:0.9rem;">Pilih chat</p>
+                    </div>
+                </div>
+                
+                <div class="chat-window" id="privateChatWindow">
+                    <div class="chat-header" id="privateChatHeader">
+                        <i class="fas fa-user-secret"></i> Pilih chat untuk memulai
+                    </div>
+                    <div class="chat-messages" id="privateMessages">
+                        <div class="empty-state" style="text-align:center; padding:2rem; color:#666; height:100%; display:flex; flex-direction:column; justify-content:center;">
+                            <i class="fas fa-hand-pointer" style="font-size:3rem; margin-bottom:1rem; color:#ccc;"></i>
+                            <p>Pilih pesan dari daftar kiri</p>
+                        </div>
+                    </div>
+                    <div class="chat-input-area" id="privateInputArea" style="display:none;">
+                        <div class="flex-row">
+                            <input class="input" id="privateInput" placeholder="Balas pesan..." maxlength="200" onkeypress="if(event.key==='Enter')sendPrivateMessage()">
+                            <button class="btn" onclick="sendPrivateMessage()" style="padding:1rem 1.5rem;">
+                                <i class="fas fa-reply"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Bid -->
+        <div id="panelBid" class="panel">
+            <div class="section-title"><i class="fas fa-hand-holding-usd"></i> Place Your Bid</div>
+            
+            <div class="info-card">
+                <strong><i class="fas fa-info-circle"></i> Informasi:</strong><br>
+                • 1 BGL = 100 DL = 10,000 WL<br>
+                • Saldo Anda: <strong id="bidBalance">0 BGL</strong><br>
+                • Bid akan mengunci saldo sementara
+            </div>
+
+            <div class="flex-row">
+                <input type="number" class="input" id="bidAmount" placeholder="Jumlah" min="1" onkeypress="if(event.key==='Enter')placeBid()">
+                <select class="input" id="currency" style="flex:0.5;">
+                    <option value="BGL">BGL</option>
+                    <option value="DL">DL</option>
+                    <option value="WL">WL</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-success" onclick="placeBid()" id="bidButton">
+                <i class="fas fa-gavel"></i> Place Bid
+            </button>
+
+            <div style="margin-top:2rem;">
+                <div class="section-title"><i class="fas fa-history"></i> Riwayat Bid</div>
+                <div class="history" id="bidHistory">
+                    <div class="empty-state" style="text-align:center; padding:2rem; color:#666;">
+                        <i class="fas fa-history" style="font-size:3rem; margin-bottom:1rem; color:#ccc;"></i>
+                        <p>Belum ada bid</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk input WA Pemenang -->
+    <div class="modal" id="winnerModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div style="text-align:center; margin-bottom:1.5rem;">
+                <i class="fas fa-trophy" style="font-size:3rem; color:#ffd700;"></i>
+                <h2 style="color:#28a745; margin-top:1rem;">SELAMAT! Anda Menang!</h2>
+                <p style="color:#666;">Anda memenangkan lelang dengan bid tertinggi!</p>
+            </div>
+            
+            <div style="background:#f8f9fa; padding:1rem; border-radius:10px; margin-bottom:1rem;">
+                <p><strong>Item:</strong> <span id="winItem">-</span></p>
+                <p><strong>Jumlah:</strong> <span id="winQty">0</span></p>
+                <p><strong>Total Bid:</strong> <span id="winAmount" style="color:#28a745; font-size:1.2rem; font-weight:700;">0</span> BGL</p>
+            </div>
+
+            <p style="margin-bottom:1rem; color:#666;">Silakan masukkan nomor WhatsApp Anda untuk claim hadiah:</p>
+            
+            <input class="input" id="winnerWA" placeholder="Contoh: 08123456789" type="tel">
+            <button class="btn btn-success" onclick="submitWinnerInfo()">
+                <i class="fab fa-whatsapp"></i> Kirim & Claim Hadiah
+            </button>
+            
+            <p style="margin-top:1rem; font-size:0.85rem; color:#666; text-align:center;">
+                <i class="fas fa-shield-alt"></i> Data Anda aman dan hanya dibagikan ke owner
+            </p>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, update, push, onValue, onChildAdded, get, query, limitToLast, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, update, push, onValue, onChildAdded, get, query, limitToLast, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyC8QrDc5NiyyEZwl8sqBSVEPkymTkpgOiU",
             authDomain: "leetopia-auction.firebaseapp.com",
@@ -33,351 +846,763 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- State Management ---
+        // State Management
         let currentGrowID = localStorage.getItem("growid") || "PlayerGTPS";
         let isOwner = false;
-        let timerInterval = null;
+        let timerInt = null;
+        let currentAuction = null;
+        let userBalance = 0;
+        let currentChatPartner = null;
+        let unreadPrivate = 0;
+        let hasShownWinnerModal = false;
 
-        // --- DOM Elements ---
-        const els = {
-            growidInput: document.getElementById('growidInput'),
-            growidDisplay: document.getElementById('growidDisplay'),
-            ownerPanel: document.getElementById('ownerPanel'),
-            loginOwnerBtn: document.getElementById('loginOwnerBtn'),
-            ownerPassInput: document.getElementById('ownerPass'),
+        // Initialize
+        document.getElementById("growidInput").value = currentGrowID;
+        document.getElementById("growidText").innerText = currentGrowID;
+
+        // Panel Switching
+        window.switchPanel = function(p) {
+            document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+            document.getElementById("panel" + capitalize(p)).classList.add("active");
+            document.querySelectorAll(".nav button").forEach(x => x.classList.remove("active"));
+            document.getElementById("tab" + capitalize(p)).classList.add("active");
             
-            // Auction Display
-            displayItem: document.getElementById('displayItem'),
-            displayQty: document.getElementById('displayQty'),
-            displayImg: document.getElementById('displayImg'),
-            highestBid: document.getElementById('highestBid'),
-            highestBidder: document.getElementById('highestBidder'),
-            timer: document.getElementById('timer'),
-            statusBadge: document.getElementById('statusBadge'),
-            
-            // Inputs
-            bidAmount: document.getElementById('bidAmount'),
-            currency: document.getElementById('currency'),
-            
-            // Lists
-            bidHistory: document.getElementById('bidHistory'),
-            chatMessages: document.getElementById('chatMessages'),
-            chatInput: document.getElementById('chatInput'),
-            
-            // Owner Inputs
-            itemName: document.getElementById('itemName'),
-            itemQty: document.getElementById('itemQty'),
-            itemImg: document.getElementById('itemImg'),
-            duration: document.getElementById('duration'),
+            // Reset badge if opening private chat
+            if (p === 'private') {
+                document.getElementById("privateBadge").style.display = 'none';
+                unreadPrivate = 0;
+            }
         };
 
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            els.growidInput.value = currentGrowID;
-            els.growidDisplay.innerText = currentGrowID;
-            
-            // Setup Firebase Listeners
-            setupAuctionListener();
-            setupBidListener();
-            setupChatListener();
-        });
+        function capitalize(t) {
+            return t.charAt(0).toUpperCase() + t.slice(1);
+        }
 
-        // --- Core Functions ---
+        window.showSection = function(section) {
+            document.getElementById("auctionControl").style.display = section === 'auctionControl' ? 'block' : 'none';
+            document.getElementById("balanceControl").style.display = section === 'balanceControl' ? 'block' : 'none';
+        };
 
-        window.saveProfile = () => {
-            const val = els.growidInput.value.trim();
-            if (val) {
+        // Notification System
+        function showNotification(message, type = 'info', duration = 3000) {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), duration);
+        }
+
+        // Profile Functions
+        window.saveProfile = function() {
+            const val = document.getElementById("growidInput").value.trim();
+            if (val && val.length >= 3) {
+                const oldGrowID = currentGrowID;
                 currentGrowID = val;
                 localStorage.setItem("growid", val);
-                els.growidDisplay.innerText = val;
-                showToast("Profile Updated!", "success");
-            }
-        };
-
-        window.ownerLogin = () => {
-            // Simple client-side check for demo purposes
-            if (els.ownerPassInput.value === "12345") {
-                isOwner = true;
-                els.ownerPanel.classList.remove('hidden');
-                els.ownerPanel.classList.add('flex');
-                els.loginOwnerBtn.innerText = "Logged In";
-                els.loginOwnerBtn.classList.replace('bg-yellow-600', 'bg-green-600');
-                showToast("Owner Access Granted", "success");
+                document.getElementById("growidText").innerText = val;
+                
+                // Update balance reference
+                if (oldGrowID !== val) {
+                    get(ref(db, `users/${oldGrowID}/balance`)).then(s => {
+                        if (s.exists()) {
+                            set(ref(db, `users/${val}/balance`), s.val());
+                        }
+                    });
+                }
+                
+                showNotification("Profil berhasil disimpan!", "success");
+                initUserBalance();
             } else {
-                showToast("Invalid Password", "error");
+                showNotification("GrowID minimal 3 karakter!", "error");
             }
         };
 
-        window.createAuction = () => {
-            if (!isOwner) return;
-            
-            const name = els.itemName.value;
-            const qty = els.itemQty.value;
-            const img = els.itemImg.value || "https://placehold.co/400x400/1e293b/FFF?text=No+Image";
-            const duration = parseInt(els.duration.value) || 5;
-            const endTime = Date.now() + (duration * 60000);
+        // Owner Functions
+        window.ownerLogin = function() {
+            const pass = document.getElementById("ownerPass").value;
+            if (pass === "12345") {
+                isOwner = true;
+                document.getElementById("ownerPanel").style.display = "block";
+                document.getElementById("ownerPass").value = "";
+                showNotification("Login Owner berhasil!", "success");
+            } else {
+                showNotification("Password salah!", "error");
+            }
+        };
 
+        window.createAuction = function() {
+            if (!isOwner) return showNotification("Anda bukan owner!", "error");
+            
+            const name = document.getElementById("itemName").value.trim();
+            const qty = document.getElementById("itemQty").value.trim();
+            const img = document.getElementById("itemImg").value.trim();
+            const duration = parseInt(document.getElementById("duration").value) || 5;
+            const minBid = parseFloat(document.getElementById("minBid").value) || 1;
+
+            if (!name || !qty) {
+                return showNotification("Nama item dan jumlah wajib diisi!", "error");
+            }
+
+            const endTime = Date.now() + duration * 60000;
+            
             set(ref(db, "auction/current"), {
                 itemName: name,
                 itemQty: qty,
-                imageUrl: img,
+                imageUrl: img || `https://placehold.co/120x120?text=${encodeURIComponent(name)}`,
                 highestBid: 0,
-                highestBidder: "None",
+                highestBidder: "-",
+                minBid: minBid,
                 endTime: endTime,
-                active: true
-            });
-            
-            // Clear old bids
-            remove(ref(db, "bids"));
-            showToast("Auction Started!", "success");
-        };
-
-        window.placeBid = () => {
-            const amt = parseFloat(els.bidAmount.value);
-            if (!amt || amt <= 0) return showToast("Enter valid amount", "error");
-
-            const cur = els.currency.value;
-            let bidVal = amt;
-
-            // Conversion Logic to BGL base
-            if (cur === "DL") bidVal = amt * 100;
-            if (cur === "WL") bidVal = amt / 100; // Assuming 1 BGL = 100 DL = 10,000 WL
-
-            get(ref(db, "auction/current")).then(snapshot => {
-                const data = snapshot.val();
-                if (!data) return showToast("No active auction", "error");
-                if (Date.now() > data.endTime) return showToast("Auction Ended", "error");
+                status: "active",
+                createdBy: currentGrowID,
+                createdAt: Date.now(),
+                totalBids: 0,
+                participants: {}
+            }).then(() => {
+                set(ref(db, "bids"), null);
+                hasShownWinnerModal = false;
+                showNotification("Lelang dimulai!", "success");
                 
-                // Ensure bid is strictly higher
-                if (bidVal > data.highestBid) {
-                    update(ref(db, "auction/current"), {
-                        highestBid: bidVal,
-                        highestBidder: currentGrowID
-                    });
-                    
-                    push(ref(db, "bids"), {
-                        growid: currentGrowID,
-                        amount: bidVal,
-                        timestamp: Date.now()
-                    });
-                    
-                    els.bidAmount.value = "";
-                    showToast("Bid Placed Successfully!", "success");
-                } else {
-                    showToast(`Bid must be > ${data.highestBid} BGL`, "error");
-                }
-            });
+                // Clear inputs
+                ["itemName", "itemQty", "itemImg", "duration", "minBid"].forEach(id => {
+                    document.getElementById(id).value = "";
+                });
+            }).catch(err => showNotification("Error: " + err.message, "error"));
         };
 
-        window.sendChat = () => {
-            const text = els.chatInput.value.trim();
+        window.endAuctionEarly = function() {
+            if (!isOwner) return showNotification("Anda bukan owner!", "error");
+            if (!currentAuction || currentAuction.status !== "active") {
+                return showNotification("Tidak ada lelang aktif!", "error");
+            }
+            
+            if (confirm("Yakin ingin mengakhiri lelang sekarang?")) {
+                processAuctionEnd();
+            }
+        };
+
+        // Balance Management (Owner)
+        window.manageBalance = async function(type) {
+            if (!isOwner) return showNotification("Anda bukan owner!", "error");
+            
+            const target = document.getElementById("targetGrowID").value.trim();
+            const amount = parseFloat(document.getElementById("balanceAmount").value);
+            
+            if (!target || !amount || amount <= 0) {
+                return showNotification("Data tidak valid!", "error");
+            }
+
+            const userRef = ref(db, `users/${target}/balance`);
+            const snap = await get(userRef);
+            let currentBal = snap.exists() ? snap.val() : 0;
+            
+            let newBal;
+            if (type === 'deposit') {
+                newBal = currentBal + amount;
+                await set(userRef, newBal);
+                
+                // Log transaction
+                await push(ref(db, `users/${target}/transactions`), {
+                    type: 'deposit',
+                    amount: amount,
+                    by: currentGrowID,
+                    timestamp: Date.now(),
+                    note: 'Deposit oleh owner'
+                });
+                
+                // Notify user
+                await push(ref(db, `private/${target}/system`), {
+                    from: 'SYSTEM',
+                    message: `Saldo Anda bertambah ${amount} BGL (Deposit oleh owner)`,
+                    timestamp: Date.now(),
+                    type: 'notification'
+                });
+                
+                showNotification(`Berhasil deposit ${amount} BGL ke ${target}`, "success");
+            } else {
+                if (currentBal < amount) {
+                    return showNotification("Saldo pemain tidak cukup!", "error");
+                }
+                newBal = currentBal - amount;
+                await set(userRef, newBal);
+                
+                await push(ref(db, `users/${target}/transactions`), {
+                    type: 'withdraw',
+                    amount: -amount,
+                    by: currentGrowID,
+                    timestamp: Date.now(),
+                    note: 'Withdraw oleh owner'
+                });
+                
+                await push(ref(db, `private/${target}/system`), {
+                    from: 'SYSTEM',
+                    message: `Saldo Anda berkurang ${amount} BGL (Withdraw oleh owner)`,
+                    timestamp: Date.now(),
+                    type: 'notification'
+                });
+                
+                showNotification(`Berhasil withdraw ${amount} BGL dari ${target}`, "success");
+            }
+        };
+
+        window.checkPlayerBalance = async function() {
+            if (!isOwner) return;
+            const target = document.getElementById("targetGrowID").value.trim();
+            if (!target) return showNotification("Masukkan GrowID!", "error");
+            
+            const snap = await get(ref(db, `users/${target}/balance`));
+            const bal = snap.exists() ? snap.val() : 0;
+            showNotification(`Saldo ${target}: ${bal} BGL`, "info", 5000);
+        };
+
+        // User Balance Functions
+        async function initUserBalance() {
+            const snap = await get(ref(db, `users/${currentGrowID}/balance`));
+            userBalance = snap.exists() ? snap.val() : 0;
+            updateBalanceDisplay();
+            
+            // Listen for changes
+            onValue(ref(db, `users/${currentGrowID}/balance`), s => {
+                userBalance = s.exists() ? s.val() : 0;
+                updateBalanceDisplay();
+            });
+        }
+
+        function updateBalanceDisplay() {
+            document.getElementById("userBalance").innerText = userBalance.toLocaleString();
+            document.getElementById("walletBalance").innerText = userBalance.toLocaleString();
+            document.getElementById("bidBalance").innerText = userBalance.toLocaleString() + " BGL";
+            document.getElementById("equivalentDL").innerText = (userBalance * 100).toLocaleString();
+            document.getElementById("equivalentWL").innerText = (userBalance * 10000).toLocaleString();
+            
+            // Update bid button state
+            const bidBtn = document.getElementById("bidButton");
+            if (currentAuction && currentAuction.status === 'active') {
+                if (userBalance <= 0) {
+                    bidBtn.disabled = true;
+                    bidBtn.innerHTML = '<i class="fas fa-lock"></i> Saldo Tidak Cukup';
+                    bidBtn.style.opacity = '0.6';
+                } else {
+                    bidBtn.disabled = false;
+                    bidBtn.innerHTML = '<i class="fas fa-gavel"></i> Place Bid';
+                    bidBtn.style.opacity = '1';
+                }
+            }
+        }
+
+        // Currency Conversion
+        function convert(amount, currency) {
+            switch(currency) {
+                case "DL": return amount * 100;
+                case "WL": return amount / 100;
+                default: return amount;
+            }
+        }
+
+        // Bid Functions
+        window.placeBid = async function() {
+            const amt = parseFloat(document.getElementById("bidAmount").value);
+            if (!amt || amt <= 0) {
+                return showNotification("Masukkan jumlah bid yang valid!", "error");
+            }
+
+            const cur = document.getElementById("currency").value;
+            const bidVal = convert(amt, cur);
+
+            // Check balance first
+            if (bidVal > userBalance) {
+                return showNotification(`Saldo tidak cukup! Anda punya ${userBalance} BGL, butuh ${bidVal} BGL`, "error");
+            }
+
+            const snap = await get(ref(db, "auction/current"));
+            const d = snap.val();
+            
+            if (!d || d.status !== "active") {
+                return showNotification("Tidak ada lelang aktif!", "error");
+            }
+            
+            if (Date.now() > d.endTime) {
+                return showNotification("Lelang sudah selesai!", "error");
+            }
+
+            if (bidVal < d.minBid) {
+                return showNotification(`Bid minimal adalah ${d.minBid} BGL!`, "error");
+            }
+            
+            if (bidVal <= d.highestBid) {
+                return showNotification(`Bid harus lebih tinggi dari ${d.highestBid} BGL!`, "error");
+            }
+
+            // Check if user already bid and locked balance
+            const userBidRef = ref(db, `auction/current/participants/${currentGrowID}`);
+            const userBidSnap = await get(userBidRef);
+            let previousBid = 0;
+            if (userBidSnap.exists()) {
+                previousBid = userBidSnap.val().amount || 0;
+            }
+
+            // Calculate actual balance needed (only lock the difference if bidding higher)
+            const additionalNeeded = bidVal - previousBid;
+            
+            if (additionalNeeded > userBalance) {
+                return showNotification(`Saldo tidak cukup untuk menaikkan bid! Butuh tambahan ${additionalNeeded} BGL`, "error");
+            }
+
+            // Lock balance (deduct from available)
+            await update(ref(db, `users/${currentGrowID}`), {
+                balance: userBalance - additionalNeeded,
+                lockedBalance: (userBidSnap.exists() ? userBidSnap.val().locked || 0 : 0) + additionalNeeded
+            });
+
+            // Update auction
+            await update(ref(db, "auction/current"), {
+                highestBid: bidVal,
+                highestBidder: currentGrowID,
+                totalBids: (d.totalBids || 0) + 1
+            });
+
+            // Track participant
+            await set(ref(db, `auction/current/participants/${currentGrowID}`), {
+                amount: bidVal,
+                locked: bidVal,
+                timestamp: Date.now()
+            });
+
+            // Add to history
+            await push(ref(db, "bids"), {
+                growid: currentGrowID,
+                amount: bidVal,
+                currency: cur,
+                originalAmount: amt,
+                timestamp: Date.now()
+            });
+
+            document.getElementById("bidAmount").value = "";
+            showNotification("Bid berhasil! Saldo telah dikunci.", "success");
+        };
+
+        // Process Auction End
+        async function processAuctionEnd() {
+            if (!currentAuction) return;
+            
+            const winner = currentAuction.highestBidder;
+            const winAmount = currentAuction.highestBid;
+            
+            await update(ref(db, "auction/current"), {
+                status: "ended",
+                endTime: Date.now(),
+                winner: winner,
+                winAmount: winAmount
+            });
+
+            if (winner !== "-") {
+                // Deduct winner's locked balance permanently
+                const winnerRef = ref(db, `users/${winner}`);
+                const winnerSnap = await get(winnerRef);
+                if (winnerSnap.exists()) {
+                    const data = winnerSnap.val();
+                    const newBalance = (data.balance || 0);
+                    const locked = (data.lockedBalance || 0);
+                    
+                    await update(winnerRef, {
+                        balance: newBalance,
+                        lockedBalance: 0
+                    });
+
+                    // Add transaction record
+                    await push(ref(db, `users/${winner}/transactions`), {
+                        type: 'auction_win',
+                        amount: -winAmount,
+                        item: currentAuction.itemName,
+                        timestamp: Date.now(),
+                        note: `Pemenang lelang: ${currentAuction.itemName}`
+                    });
+                }
+
+                // Return locked balance to other participants
+                const participants = currentAuction.participants || {};
+                for (let [pid, pdata] of Object.entries(participants)) {
+                    if (pid !== winner && pdata.locked) {
+                        const pRef = ref(db, `users/${pid}`);
+                        const pSnap = await get(pRef);
+                        if (pSnap.exists()) {
+                            const pData = pSnap.val();
+                            await update(pRef, {
+                                balance: (pData.balance || 0) + pdata.locked,
+                                lockedBalance: (pData.lockedBalance || 0) - pdata.locked
+                            });
+                            
+                            // Notify return
+                            await push(ref(db, `private/${pid}/system`), {
+                                from: 'SYSTEM',
+                                message: `Lelang selesai! Saldo terkunci ${pdata.locked} BGL telah dikembalikan.`,
+                                timestamp: Date.now(),
+                                type: 'refund'
+                            });
+                        }
+                    }
+                }
+
+                // Send winner notification
+                await push(ref(db, `private/${winner}/system`), {
+                    from: 'BOT_AUCTION',
+                    message: `🎉 SELAMAT! Anda memenangkan lelang ${currentAuction.itemName} dengan bid ${winAmount} BGL! Silakan buka tab Pesan untuk claim hadiah.`,
+                    timestamp: Date.now(),
+                    type: 'winner',
+                    data: {
+                        item: currentAuction.itemName,
+                        qty: currentAuction.itemQty,
+                        amount: winAmount
+                    }
+                });
+
+                // Show modal if winner is current user
+                if (winner === currentGrowID && !hasShownWinnerModal) {
+                    showWinnerModal(currentAuction, winAmount);
+                }
+            }
+
+            showNotification("Lelang telah berakhir!", "info");
+        }
+
+        // Winner Modal Functions
+        window.showWinnerModal = function(auction, amount) {
+            hasShownWinnerModal = true;
+            document.getElementById("winItem").innerText = auction.itemName;
+            document.getElementById("winQty").innerText = auction.itemQty;
+            document.getElementById("winAmount").innerText = amount;
+            document.getElementById("winnerModal").classList.add("active");
+        };
+
+        window.closeModal = function() {
+            document.getElementById("winnerModal").classList.remove("active");
+        };
+
+        window.submitWinnerInfo = async function() {
+            const wa = document.getElementById("winnerWA").value.trim();
+            if (!wa || wa.length < 10) {
+                return showNotification("Masukkan nomor WA yang valid!", "error");
+            }
+
+            // Send to owner
+            await push(ref(db, "admin/winnerClaims"), {
+                growid: currentGrowID,
+                wa: wa,
+                item: currentAuction.itemName,
+                qty: currentAuction.itemQty,
+                amount: currentAuction.winAmount || currentAuction.highestBid,
+                timestamp: Date.now(),
+                status: "pending"
+            });
+
+            // Confirm to user
+            await push(ref(db, `private/${currentGrowID}/system`), {
+                from: 'BOT_AUCTION',
+                message: `✅ Data Anda telah dikirim ke owner! Nomor WA: ${wa}. Owner akan menghubungi Anda segera.`,
+                timestamp: Date.now(),
+                type: 'confirmation'
+            });
+
+            closeModal();
+            showNotification("Data berhasil dikirim! Owner akan menghubungi Anda.", "success");
+        };
+
+        // Chat Functions
+        window.sendChat = async function() {
+            const text = document.getElementById("chatInput").value.trim();
             if (!text) return;
             
-            push(ref(db, "chat"), {
+            if (text.length > 200) {
+                return showNotification("Pesan terlalu panjang (max 200 karakter)!", "error");
+            }
+
+            await push(ref(db, "chat"), {
                 growid: currentGrowID,
                 message: text,
                 timestamp: Date.now()
             });
-            els.chatInput.value = "";
+            
+            document.getElementById("chatInput").value = "";
         };
 
-        // --- Listeners ---
-
-        function setupAuctionListener() {
-            onValue(ref(db, "auction/current"), (snapshot) => {
-                const data = snapshot.val();
-                if (!data) return;
-
-                // Update UI
-                els.displayItem.innerText = data.itemName || "Waiting for item...";
-                els.displayQty.innerText = data.itemQty || 0;
-                els.displayImg.src = data.imageUrl;
-                els.highestBid.innerText = data.highestBid || 0;
-                els.highestBidder.innerText = data.highestBidder || "-";
-
-                // Timer Logic
-                if (timerInterval) clearInterval(timerInterval);
+        // Private Chat Functions
+        async function loadPrivateChats() {
+            const chatList = document.getElementById("privateChatList");
+            
+            onValue(query(ref(db, `private/${currentGrowID}`), limitToLast(50)), snapshot => {
+                chatList.innerHTML = "";
+                const chats = snapshot.val() || {};
                 
-                timerInterval = setInterval(() => {
-                    const now = Date.now();
-                    const diff = data.endTime - now;
-
-                    if (diff <= 0) {
-                        els.timer.innerText = "ENDED";
-                        els.timer.classList.add('text-red-500');
-                        els.statusBadge.classList.replace('bg-green-500', 'bg-red-500');
-                        els.statusBadge.innerText = "CLOSED";
-                        clearInterval(timerInterval);
-                    } else {
-                        const m = Math.floor(diff / 60000);
-                        const s = Math.floor((diff % 60000) / 1000);
-                        els.timer.innerText = `${m}m ${s}s`;
-                        els.timer.classList.remove('text-red-500');
-                        els.statusBadge.classList.replace('bg-red-500', 'bg-green-500');
-                        els.statusBadge.innerText = "LIVE";
+                let unread = 0;
+                
+                Object.entries(chats).forEach(([chatId, messages]) => {
+                    if (chatId === 'system') {
+                        // Handle system messages specially
+                        const lastMsg = Array.isArray(messages) ? messages[messages.length - 1] : 
+                                       typeof messages === 'object' ? Object.values(messages).pop() : null;
+                        
+                        if (lastMsg) {
+                            const div = document.createElement("div");
+                            div.className = "chat-item system-chat";
+                            if (!lastMsg.read) {
+                                div.classList.add("unread");
+                                unread++;
+                            }
+                            div.innerHTML = `
+                                <div style="font-weight:700; color:#0a3a66;">
+                                    <i class="fas fa-robot"></i> Sistem
+                                </div>
+                                <div style="font-size:0.85rem; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                    ${lastMsg.message ? lastMsg.message.substring(0, 30) + '...' : 'Pesan sistem'}
+                                </div>
+                            `;
+                            div.onclick = () => openPrivateChat('system');
+                            chatList.appendChild(div);
+                        }
                     }
-                }, 1000);
-            });
-        }
-
-        function setupBidListener() {
-            const histQuery = query(ref(db, "bids"), limitToLast(20));
-            onChildAdded(histQuery, (snapshot) => {
-                const b = snapshot.val();
-                if (!b) return;
-
-                const div = document.createElement("div");
-                div.className = "flex justify-between items-center bg-white/5 p-3 rounded-lg mb-2 border border-white/10 animate-fade-in";
-                div.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold">
-                            ${b.growid.substring(0,2).toUpperCase()}
-                        </div>
-                        <span class="font-semibold text-sm text-blue-200">${b.growid}</span>
-                    </div>
-                    <span class="font-bold text-yellow-400">${b.amount} BGL</span>
-                `;
-                els.bidHistory.prepend(div);
-            });
-        }
-
-        function setupChatListener() {
-            const chatQuery = query(ref(db, "chat"), limitToLast(50));
-            onChildAdded(chatQuery, (snapshot) => {
-                const c = snapshot.val();
-                if (!c) return;
-
-                const isMe = c.growid === currentGrowID;
-                const div = document.createElement("div");
-                div.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-3 animate-slide-up`;
+                });
                 
-                div.innerHTML = `
-                    <div class="max-w-[80%] ${isMe ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-200'} px-4 py-2 rounded-2xl ${isMe ? 'rounded-tr-none' : 'rounded-tl-none'} shadow-md">
-                        <div class="text-xs opacity-75 mb-1 font-bold ${isMe ? 'text-blue-200' : 'text-slate-400'}">${c.growid}</div>
-                        <div class="text-sm">${c.message}</div>
-                    </div>
-                `;
-                
-                els.chatMessages.appendChild(div);
-                els.chatMessages.scrollTop = els.chatMessages.scrollHeight;
+                // Update badge
+                if (unread > 0) {
+                    document.getElementById("privateBadge").style.display = 'inline';
+                    document.getElementById("privateBadge").innerText = unread;
+                }
             });
         }
 
-        // --- Utilities ---
-        window.switchTab = (tabName) => {
-            // Hide all panels
-            document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
-            // Show target
-            document.getElementById(`panel-${tabName}`).classList.remove('hidden');
+        window.openPrivateChat = function(chatId) {
+            currentChatPartner = chatId;
+            const header = document.getElementById("privateChatHeader");
+            const inputArea = document.getElementById("privateInputArea");
+            const messagesDiv = document.getElementById("privateMessages");
             
-            // Update nav buttons
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-blue-400', 'border-b-2', 'border-blue-400');
-                btn.classList.add('text-slate-400');
+            header.innerHTML = chatId === 'system' ? 
+                '<i class="fas fa-robot"></i> Pesan Sistem (Bot)' : 
+                `<i class="fas fa-user"></i> ${chatId}`;
+            
+            inputArea.style.display = chatId === 'system' ? 'none' : 'flex';
+            
+            // Load messages
+            onValue(ref(db, `private/${currentGrowID}/${chatId}`), snapshot => {
+                messagesDiv.innerHTML = "";
+                const messages = snapshot.val() || {};
+                
+                Object.entries(messages).forEach(([key, msg]) => {
+                    const div = document.createElement("div");
+                    div.className = "chat-bubble";
+                    
+                    if (msg.from === 'SYSTEM' || msg.from === 'BOT_AUCTION') {
+                        div.className += " system";
+                        div.innerHTML = `<i class="fas fa-robot"></i> <b>${msg.from}</b><br>${msg.message}`;
+                    } else if (msg.from === currentGrowID) {
+                        div.className += " own";
+                        div.innerHTML = `<b>Anda</b><br>${msg.message}`;
+                    } else {
+                        div.innerHTML = `<b>${msg.from}</b><br>${msg.message}`;
+                    }
+                    
+                    if (msg.type === 'winner') {
+                        div.className += " winner";
+                    }
+                    
+                    messagesDiv.appendChild(div);
+                });
+                
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                // Mark as read
+                if (chatId === 'system') {
+                    Object.keys(messages).forEach(key => {
+                        if (!messages[key].read) {
+                            update(ref(db, `private/${currentGrowID}/${chatId}/${key}`), { read: true });
+                        }
+                    });
+                }
             });
-            
-            const activeBtn = document.getElementById(`btn-${tabName}`);
-            activeBtn.classList.remove('text-slate-400');
-            activeBtn.classList.add('text-blue-400', 'border-b-2', 'border-blue-400');
         };
 
-        function showToast(msg, type) {
-            const toast = document.createElement('div');
-            const colors = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-            toast.className = `fixed top-4 right-4 ${colors} text-white px-6 py-3 rounded-lg shadow-xl z-50 transform transition-all duration-300 translate-y-[-20px] opacity-0 font-semibold`;
-            toast.innerText = msg;
-            document.body.appendChild(toast);
+        window.sendPrivateMessage = async function() {
+            if (!currentChatPartner || currentChatPartner === 'system') return;
             
-            // Animate in
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-[-20px]', 'opacity-0');
+            const text = document.getElementById("privateInput").value.trim();
+            if (!text) return;
+
+            await push(ref(db, `private/${currentChatPartner}/${currentGrowID}`), {
+                from: currentGrowID,
+                message: text,
+                timestamp: Date.now(),
+                read: false
             });
 
-            // Remove
-            setTimeout(() => {
-                toast.classList.add('translate-y-[-20px]', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            await push(ref(db, `private/${currentGrowID}/${currentChatPartner}`), {
+                from: currentGrowID,
+                message: text,
+                timestamp: Date.now(),
+                read: true
+            });
+
+            document.getElementById("privateInput").value = "";
+        };
+
+        // Transaction History
+        function loadTransactions() {
+            const histDiv = document.getElementById("transactionHistory");
+            
+            onValue(query(ref(db, `users/${currentGrowID}/transactions`), limitToLast(20)), snapshot => {
+                if (!snapshot.exists()) {
+                    histDiv.innerHTML = `
+                        <div class="empty-state" style="text-align:center; padding:2rem; color:#666;">
+                            <i class="fas fa-receipt" style="font-size:3rem; margin-bottom:1rem; color:#ccc;"></i>
+                            <p>Belum ada transaksi</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                histDiv.innerHTML = "";
+                const transactions = snapshot.val();
+                
+                Object.entries(transactions).reverse().forEach(([id, t]) => {
+                    const div = document.createElement("div");
+                    div.className = `transaction-item ${t.type}`;
+                    const isPositive = t.amount > 0;
+                    div.innerHTML = `
+                        <div>
+                            <div style="font-weight:600;">${t.note || t.type}</div>
+                            <div style="font-size:0.8rem; color:#666;">${new Date(t.timestamp).toLocaleString()}</div>
+                        </div>
+                        <div class="${isPositive ? 'amount-positive' : 'amount-negative'}">
+                            ${isPositive ? '+' : ''}${t.amount} BGL
+                        </div>
+                    `;
+                    histDiv.appendChild(div);
+                });
+            });
         }
+
+        // Realtime Listeners
+        onValue(ref(db, "auction/current"), s => {
+            const d = s.val();
+            currentAuction = d;
+            
+            if (!d) {
+                document.getElementById("displayItem").innerText = "-";
+                document.getElementById("displayQty").innerText = "0";
+                document.getElementById("displayImg").src = "https://placehold.co/120x120?text=No+Item";
+                document.getElementById("highestBid").innerText = "0";
+                document.getElementById("highestBidder").innerText = "-";
+                document.getElementById("minBidDisplay").innerText = "0";
+                document.getElementById("timer").innerHTML = '<i class="fas fa-clock"></i> --:--';
+                document.getElementById("auctionStatus").className = "status-badge status-ended";
+                document.getElementById("auctionStatus").innerText = "Tidak Ada Lelang";
+                document.getElementById("totalBids").innerText = "0";
+                document.getElementById("participantCount").innerText = "0";
+                if (timerInt) clearInterval(timerInt);
+                return;
+            }
+
+            document.getElementById("displayItem").innerText = d.itemName || "-";
+            document.getElementById("displayQty").innerText = d.itemQty || 0;
+            document.getElementById("displayImg").src = d.imageUrl || "https://placehold.co/120x120?text=No+Image";
+            document.getElementById("highestBid").innerText = d.highestBid || 0;
+            document.getElementById("highestBidder").innerText = d.highestBidder || "-";
+            document.getElementById("minBidDisplay").innerText = d.minBid || 1;
+            document.getElementById("totalBids").innerText = d.totalBids || 0;
+            document.getElementById("participantCount").innerText = d.participants ? Object.keys(d.participants).length : 0;
+            
+            const statusEl = document.getElementById("auctionStatus");
+            if (d.status === "active" && Date.now() < d.endTime) {
+                statusEl.className = "status-badge status-active";
+                statusEl.innerText = "Lelang Aktif";
+            } else {
+                statusEl.className = "status-badge status-ended";
+                statusEl.innerText = "Lelang Selesai";
+            }
+
+            if (timerInt) clearInterval(timerInt);
+            
+            timerInt = setInterval(() => {
+                const remaining = d.endTime - Date.now();
+                const timerEl = document.getElementById("timer");
+                
+                if (remaining <= 0 || d.status === "ended") {
+                    timerEl.innerHTML = '<i class="fas fa-flag-checkered"></i> SELESAI';
+                    timerEl.classList.add("ended");
+                    clearInterval(timerInt);
+                    
+                    if (d.status === "active") {
+                        processAuctionEnd();
+                    }
+                    
+                    // Check if current user is winner and show modal
+                    if (d.highestBidder === currentGrowID && d.status === "ended" && !hasShownWinnerModal) {
+                        showWinnerModal(d, d.highestBid);
+                    }
+                } else {
+                    const mins = Math.floor(remaining / 60000);
+                    const secs = Math.floor((remaining % 60000) / 1000);
+                    timerEl.innerHTML = `<i class="fas fa-clock"></i> ${mins}m ${secs.toString().padStart(2, '0')}s`;
+                    timerEl.classList.remove("ended");
+                }
+            }, 1000);
+        });
+
+        // Bid History
+        const hist = document.getElementById("bidHistory");
+        onChildAdded(query(ref(db, "bids"), limitToLast(20)), s => {
+            const b = s.val();
+            if (!b) return;
+            
+            if (hist.querySelector(".empty-state")) {
+                hist.innerHTML = "";
+            }
+            
+            const div = document.createElement("div");
+            div.className = "chat-bubble";
+            div.style.animation = "slideIn 0.3s ease";
+            div.innerHTML = `
+                <b>${b.growid}</b> 
+                <span style="color:#0a58ca; font-weight:700;">${b.amount} BGL</span>
+                <small style="color:#999; display:block; font-size:0.75rem;">
+                    ${b.currency} ${b.originalAmount} • ${new Date(b.timestamp).toLocaleTimeString()}
+                </small>
+            `;
+            hist.prepend(div);
+        });
+
+        // Public Chat
+        const chatDiv = document.getElementById("chatMessages");
+        onChildAdded(query(ref(db, "chat"), limitToLast(50)), s => {
+            const c = s.val();
+            if (!c) return;
+            
+            if (chatDiv.querySelector(".empty-state")) {
+                chatDiv.innerHTML = "";
+            }
+            
+            const div = document.createElement("div");
+            div.className = "chat-bubble" + (c.growid === currentGrowID ? " own" : "");
+            div.innerHTML = `<b>${c.growid}</b><br>${escapeHtml(c.message)}`;
+            chatDiv.appendChild(div);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        });
+
+        // Utility
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        initUserBalance();
+        loadPrivateChats();
+        loadTransactions();
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (timerInt) clearInterval(timerInt);
+        });
     </script>
-
-    <style>
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #0f172a;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
-            color: #e2e8f0;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05); 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2); 
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3); 
-        }
-
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        
-        .animate-slide-up {
-            animation: slideUp 0.3s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .input-field {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            transition: all 0.3s;
-        }
-        .input-field:focus {
-            border-color: #3b82f6;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-        }
-    </style>
-</head>
-<body class="flex items-center justify-center p-4">
-
-    <!-- Main App Container -->
-    <div class="w-full max-w-md h-[90vh] glass-panel rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
-        
-        <!-- Header -->
-        <div class="p-6 border-b border-white/10 flex justify-between items-center bg-slate-900/50">
-            <div>
-                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                    LELANG GTPS
-                </h1>
-                <p class="text-xs text-slate-400">Real-time Auction System</p>
-            </div>
-            <div onclick="switchTab('profile')" class
+</body>
+</html>
