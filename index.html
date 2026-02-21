@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lelang GTPS Pro • ZupediaWeb</title>
+    <title>Lelang GTPS • ZupediaWeb</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -70,6 +70,17 @@
             padding: 0.5rem 1rem;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 20px;
+        }
+        
+        .admin-badge {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+            font-weight: 700;
         }
         
         .nav {
@@ -519,49 +530,47 @@
             font-size: 0.9rem;
         }
         
-        .password-strength {
-            height: 5px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            margin-top: 0.5rem;
-            overflow: hidden;
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
         }
         
-        .password-strength-bar {
-            height: 100%;
-            width: 0;
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
             transition: all 0.3s;
         }
         
-        .strength-weak { background: #dc3545; width: 33%; }
-        .strength-medium { background: #ffc107; width: 66%; }
-        .strength-strong { background: #28a745; width: 100%; }
-        
-        .admin-badge {
-            display: inline-block;
-            background: #dc3545;
-            color: white;
-            padding: 0.2rem 0.6rem;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            margin-left: 0.5rem;
-            font-weight: 700;
+        .auth-tab.active {
+            color: #0a58ca;
+            border-bottom: 3px solid #0a58ca;
         }
         
-        .password-display {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 10px;
-            text-align: center;
-            margin: 1rem 0;
-            border: 2px dashed #0a58ca;
+        .auth-form {
+            display: none;
         }
         
-        .password-display code {
-            font-size: 1.2rem;
-            color: #0a3a66;
-            font-weight: 700;
-            letter-spacing: 2px;
+        .auth-form.active {
+            display: block;
+        }
+        
+        .logged-in-panel {
+            display: none;
+        }
+        
+        .logged-in-panel.active {
+            display: block;
         }
         
         @media (max-width: 768px) {
@@ -596,25 +605,21 @@
     <div class="gtps-app">
         <!-- Header -->
         <div class="header">
-            <h1><i class="fas fa-gavel"></i>LELANG GTPS PRO</h1>
-            <div class="user-info">
+            <h1><i class="fas fa-gavel"></i>LELANG GTPS</h1>
+            <div class="user-info" id="headerUserInfo" style="display:none;">
                 <div class="balance-display">
                     <i class="fas fa-coins"></i> <span id="userBalance">0</span> BGL
                 </div>
-                <div onclick="switchPanel('profile')" id="growidDisplay">
-                    <i class="fas fa-user"></i> <span id="growidText">PlayerGTPS</span>
+                <div id="growidDisplay">
+                    <i class="fas fa-user"></i> <span id="growidText">Player</span>
                     <span id="adminBadge" class="admin-badge" style="display:none;">ADMIN</span>
                 </div>
             </div>
         </div>
 
         <!-- Navigation -->
-        <div class="nav">
-            <button id="tabProfile" class="active" onclick="switchPanel('profile')">
-                <i class="fas fa-user-circle"></i>
-                Profil
-            </button>
-            <button id="tabAuction" onclick="switchPanel('auction')">
+        <div class="nav" id="mainNav" style="display:none;">
+            <button id="tabAuction" class="active" onclick="switchPanel('auction')">
                 <i class="fas fa-gavel"></i>
                 Lelang
             </button>
@@ -636,116 +641,73 @@
                 <i class="fas fa-hand-holding-usd"></i>
                 Bid
             </button>
+            <button id="tabProfile" onclick="switchPanel('profile')">
+                <i class="fas fa-user-circle"></i>
+                Akun
+            </button>
         </div>
 
-        <!-- Panel Profil -->
-        <div id="panelProfile" class="panel active">
-            <div class="section-title"><i class="fas fa-user-edit"></i> Pengaturan Profil</div>
-            
-            <div class="input-group">
-                <label style="display:block; margin-bottom:0.5rem; color:#666; font-weight:600;">GrowID Anda</label>
-                <input class="input" id="growidInput" placeholder="Masukkan GrowID" maxlength="20">
-                <button class="btn" onclick="saveProfile()">
-                    <i class="fas fa-save"></i> Simpan Profil
-                </button>
-            </div>
-
-            <div style="margin-top:2rem; border-top:2px solid #eee; padding-top:1.5rem;">
-                <div class="section-title"><i class="fas fa-shield-alt"></i> Area Owner</div>
+        <!-- Panel Autentikasi (Tampil Pertama) -->
+        <div id="panelAuth" class="panel active">
+            <div class="auth-container">
+                <div class="section-title" style="text-align:center; justify-content:center;">
+                    <i class="fas fa-user-lock"></i> Selamat Datang
+                </div>
                 
-                <!-- Login Form -->
-                <div id="ownerLoginForm">
-                    <input type="password" id="ownerPass" class="input" placeholder="Password Owner">
-                    <button class="btn btn-success" onclick="ownerLogin()">
-                        <i class="fas fa-lock"></i> Login Owner
-                    </button>
-                    
-                    <div class="password-display">
-                        <p style="margin-bottom:0.5rem; color:#666; font-size:0.9rem;"><i class="fas fa-key"></i> Password Saat Ini:</p>
-                        <code>zupediaweb</code>
-                        <p style="margin-top:0.5rem; color:#999; font-size:0.8rem;">Password bisa diganti setelah login</p>
-                    </div>
+                <div class="auth-tabs">
+                    <div class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
+                    <div class="auth-tab" onclick="switchAuthTab('register')">Daftar</div>
                 </div>
 
-                <!-- Owner Panel -->
-                <div id="ownerPanel" style="display:none; margin-top:1.5rem;">
-                    <div class="info-card" style="border-left-color: #dc3545;">
-                        <strong><i class="fas fa-crown"></i> Panel Administrator</strong>
-                        <p style="margin-top:0.5rem; color:#666; font-size:0.9rem;">Kelola lelang, saldo pemain, dan keamanan sistem</p>
+                <!-- Form Login -->
+                <div id="loginForm" class="auth-form active">
+                    <div class="info-card">
+                        <strong><i class="fas fa-info-circle"></i> Login Akun</strong>
+                        <p style="margin-top:0.5rem; color:#666; font-size:0.9rem;">Masuk dengan akun yang sudah terdaftar</p>
                     </div>
                     
-                    <div class="btn-group">
-                        <button class="btn" onclick="showSection('auctionControl')">
-                            <i class="fas fa-gavel"></i> Lelang
-                        </button>
-                        <button class="btn btn-warning" onclick="showSection('balanceControl')">
-                            <i class="fas fa-coins"></i> Saldo
-                        </button>
-                        <button class="btn btn-danger" onclick="showSection('securityControl')">
-                            <i class="fas fa-key"></i> Password
-                        </button>
+                    <input class="input" id="loginUsername" placeholder="Username" maxlength="20">
+                    <input type="password" class="input" id="loginPassword" placeholder="Password" maxlength="20">
+                    
+                    <button class="btn btn-success" onclick="login()">
+                        <i class="fas fa-sign-in-alt"></i> Masuk
+                    </button>
+                    
+                    <p style="text-align:center; margin-top:1rem; color:#666; font-size:0.9rem;">
+                        Belum punya akun? <a href="#" onclick="switchAuthTab('register')" style="color:#0a58ca;">Daftar sekarang</a>
+                    </p>
+                </div>
+
+                <!-- Form Register -->
+                <div id="registerForm" class="auth-form">
+                    <div class="info-card" style="border-left-color: #28a745;">
+                        <strong><i class="fas fa-user-plus"></i> Buat Akun Baru</strong>
+                        <p style="margin-top:0.5rem; color:#666; font-size:0.9rem;">Isi data diri Anda untuk mendaftar</p>
                     </div>
+                    
+                    <input class="input" id="regUsername" placeholder="Buat Username" maxlength="20">
+                    <input type="password" class="input" id="regPassword" placeholder="Buat Password" maxlength="20">
+                    <input class="input" id="regGrowID" placeholder="GrowID Anda (contoh: ZupediaGT)" maxlength="20">
+                    
+                    <button class="btn btn-success" onclick="register()">
+                        <i class="fas fa-user-check"></i> Daftar Sekarang
+                    </button>
+                    
+                    <p style="text-align:center; margin-top:1rem; color:#666; font-size:0.9rem;">
+                        Sudah punya akun? <a href="#" onclick="switchAuthTab('login')" style="color:#0a58ca;">Login disini</a>
+                    </p>
+                </div>
 
-                    <!-- Auction Control -->
-                    <div id="auctionControl">
-                        <input class="input" id="itemName" placeholder="Nama Item">
-                        <input class="input" id="itemQty" placeholder="Jumlah Item">
-                        <input class="input" id="itemImg" placeholder="URL Gambar Item">
-                        <input class="input" id="duration" placeholder="Durasi (menit)" type="number" min="1">
-                        <input class="input" id="minBid" placeholder="Bid Minimal (BGL)" type="number" value="1">
-                        
-                        <button class="btn btn-danger" onclick="createAuction()">
-                            <i class="fas fa-play-circle"></i> Mulai Lelang
-                        </button>
-                        <button class="btn" onclick="endAuctionEarly()">
-                            <i class="fas fa-stop-circle"></i> Akhiri Lelang
-                        </button>
+                <!-- Area Owner Login -->
+                <div style="margin-top:3rem; border-top:2px solid #eee; padding-top:2rem;">
+                    <div class="section-title" style="justify-content:center; color:#dc3545;">
+                        <i class="fas fa-shield-alt"></i> Area Owner
                     </div>
-
-                    <!-- Balance Control -->
-                    <div id="balanceControl" style="display:none;">
-                        <input class="input" id="targetGrowID" placeholder="GrowID Pemain">
-                        <input class="input" id="balanceAmount" placeholder="Jumlah BGL" type="number">
-                        
-                        <div class="btn-group">
-                            <button class="btn btn-success" onclick="manageBalance('deposit')">
-                                <i class="fas fa-plus"></i> Deposit
-                            </button>
-                            <button class="btn btn-danger" onclick="manageBalance('withdraw')">
-                                <i class="fas fa-minus"></i> Withdraw
-                            </button>
-                        </div>
-                        
-                        <button class="btn btn-info" onclick="checkPlayerBalance()">
-                            <i class="fas fa-search"></i> Cek Saldo Pemain
-                        </button>
-                    </div>
-
-                    <!-- Security Control (Ganti Password) -->
-                    <div id="securityControl" style="display:none;">
-                        <div class="info-card" style="border-left-color: #ffc107;">
-                            <strong><i class="fas fa-exclamation-triangle"></i> Ganti Password Owner</strong>
-                            <p style="margin-top:0.5rem; color:#666; font-size:0.9rem;">Password saat ini: <strong>zupediaweb</strong></p>
-                        </div>
-
-                        <input type="password" id="currentPass" class="input" placeholder="Password Saat Ini (zupediaweb)">
-                        <input type="password" id="newPass" class="input" placeholder="Password Baru" oninput="checkPasswordStrength()">
-                        
-                        <div class="password-strength">
-                            <div class="password-strength-bar" id="strengthBar"></div>
-                        </div>
-                        <p id="strengthText" style="font-size:0.85rem; color:#666; margin-top:0.3rem; text-align:center;"></p>
-
-                        <input type="password" id="confirmPass" class="input" placeholder="Konfirmasi Password Baru">
-                        
-                        <button class="btn btn-danger" onclick="changePassword()">
-                            <i class="fas fa-key"></i> Update Password
-                        </button>
-                        
-                        <button class="btn btn-secondary" onclick="logoutOwner()" style="margin-top:1rem;">
-                            <i class="fas fa-sign-out-alt"></i> Logout Owner
-                        </button>
-                    </div>
+                    
+                    <input type="password" id="ownerPass" class="input" placeholder="Password Owner">
+                    <button class="btn btn-danger" onclick="ownerLogin()">
+                        <i class="fas fa-lock"></i> Login Owner
+                    </button>
                 </div>
             </div>
         </div>
@@ -888,6 +850,72 @@
                 </div>
             </div>
         </div>
+
+        <!-- Panel Profil/Akun -->
+        <div id="panelProfile" class="panel">
+            <div class="section-title"><i class="fas fa-user-cog"></i> Pengaturan Akun</div>
+            
+            <div class="info-card">
+                <strong><i class="fas fa-user"></i> Informasi Akun</strong>
+                <p style="margin-top:0.5rem; color:#666;">Username: <strong id="profileUsername">-</strong></p>
+                <p style="color:#666;">GrowID: <strong id="profileGrowID">-</strong></p>
+            </div>
+
+            <button class="btn btn-danger" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+
+            <!-- Owner Panel (Hanya muncul jika owner) -->
+            <div id="ownerPanelSection" style="display:none; margin-top:2rem; border-top:2px solid #eee; padding-top:1.5rem;">
+                <div class="section-title" style="color:#dc3545;">
+                    <i class="fas fa-crown"></i> Panel Owner
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn" onclick="showOwnerSection('auctionCtrl')">
+                        <i class="fas fa-gavel"></i> Lelang
+                    </button>
+                    <button class="btn btn-warning" onclick="showOwnerSection('balanceCtrl')">
+                        <i class="fas fa-coins"></i> Saldo
+                    </button>
+                </div>
+
+                <!-- Auction Control -->
+                <div id="auctionCtrl">
+                    <input class="input" id="itemName" placeholder="Nama Item">
+                    <input class="input" id="itemQty" placeholder="Jumlah Item">
+                    <input class="input" id="itemImg" placeholder="URL Gambar Item">
+                    <input class="input" id="duration" placeholder="Durasi (menit)" type="number" min="1">
+                    <input class="input" id="minBid" placeholder="Bid Minimal (BGL)" type="number" value="1">
+                    
+                    <button class="btn btn-danger" onclick="createAuction()">
+                        <i class="fas fa-play-circle"></i> Mulai Lelang
+                    </button>
+                    <button class="btn" onclick="endAuctionEarly()">
+                        <i class="fas fa-stop-circle"></i> Akhiri Lelang
+                    </button>
+                </div>
+
+                <!-- Balance Control -->
+                <div id="balanceCtrl" style="display:none;">
+                    <input class="input" id="targetGrowID" placeholder="GrowID Pemain">
+                    <input class="input" id="balanceAmount" placeholder="Jumlah BGL" type="number">
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="manageBalance('deposit')">
+                            <i class="fas fa-plus"></i> Deposit
+                        </button>
+                        <button class="btn btn-danger" onclick="manageBalance('withdraw')">
+                            <i class="fas fa-minus"></i> Withdraw
+                        </button>
+                    </div>
+                    
+                    <button class="btn btn-info" onclick="checkPlayerBalance()">
+                        <i class="fas fa-search"></i> Cek Saldo Pemain
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Pemenang -->
@@ -936,44 +964,165 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // DEFAULT PASSWORD - GANTI DI SINI JIKA PERLU
-        const DEFAULT_PASSWORD = "zupediaweb";
-
         // State
-        let currentGrowID = localStorage.getItem("growid") || "PlayerGTPS";
-        let isOwner = false;
+        let currentUser = null; // { username, growid, isOwner }
         let timerInt = null;
         let currentAuction = null;
         let userBalance = 0;
         let currentChatPartner = null;
         let hasShownWinnerModal = false;
 
-        // Init
-        document.getElementById("growidInput").value = currentGrowID;
-        document.getElementById("growidText").innerText = currentGrowID;
-
-        // Check if owner logged in previously
-        if (localStorage.getItem("isOwner") === "true") {
-            verifyOwnerSession();
+        // Check if already logged in
+        const savedUser = localStorage.getItem("currentUser");
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            showMainApp();
         }
 
-        async function verifyOwnerSession() {
-            const savedPass = localStorage.getItem("ownerPass");
-            if (savedPass) {
-                const snap = await get(ref(db, "config/ownerPassword"));
-                const currentPass = snap.exists() ? snap.val() : DEFAULT_PASSWORD;
-                if (savedPass === currentPass) {
-                    isOwner = true;
-                    document.getElementById("ownerLoginForm").style.display = "none";
-                    document.getElementById("ownerPanel").style.display = "block";
-                    document.getElementById("adminBadge").style.display = "inline";
-                } else {
-                    localStorage.removeItem("isOwner");
-                    localStorage.removeItem("ownerPass");
-                }
+        function showNotification(message, type = 'info', duration = 3000) {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), duration);
+        }
+
+        // Auth Tab Switching
+        window.switchAuthTab = function(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
             }
+        };
+
+        // Register Function
+        window.register = async function() {
+            const username = document.getElementById('regUsername').value.trim().toLowerCase();
+            const password = document.getElementById('regPassword').value;
+            const growid = document.getElementById('regGrowID').value.trim();
+
+            if (!username || !password || !growid) {
+                return showNotification("Semua field harus diisi!", "error");
+            }
+
+            if (username.length < 3 || password.length < 4) {
+                return showNotification("Username min 3 karakter, Password min 4 karakter!", "error");
+            }
+
+            // Check if username exists
+            const snap = await get(ref(db, `accounts/${username}`));
+            if (snap.exists()) {
+                return showNotification("Username sudah terdaftar! Gunakan username lain.", "error");
+            }
+
+            // Create account
+            await set(ref(db, `accounts/${username}`), {
+                password: password,
+                growid: growid,
+                createdAt: Date.now()
+            });
+
+            // Initialize user data
+            await set(ref(db, `users/${growid}/balance`), 0);
+
+            showNotification("Akun berhasil dibuat! Silakan login.", "success");
+            
+            // Clear form and switch to login
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regGrowID').value = '';
+            switchAuthTab('login');
+        };
+
+        // Login Function
+        window.login = async function() {
+            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                return showNotification("Username dan password harus diisi!", "error");
+            }
+
+            const snap = await get(ref(db, `accounts/${username}`));
+            if (!snap.exists()) {
+                return showNotification("Username tidak ditemukan!", "error");
+            }
+
+            const account = snap.val();
+            if (account.password !== password) {
+                return showNotification("Password salah!", "error");
+            }
+
+            // Set current user
+            currentUser = {
+                username: username,
+                growid: account.growid,
+                isOwner: false
+            };
+
+            localStorage.setItem("currentUser", JSON.stringify(currentUser));
+            showNotification(`Selamat datang, ${account.growid}!`, "success");
+            showMainApp();
+        };
+
+        // Owner Login
+        window.ownerLogin = function() {
+            const pass = document.getElementById("ownerPass").value;
+            if (pass === "12345") {
+                currentUser = {
+                    username: "owner",
+                    growid: "OWNER",
+                    isOwner: true
+                };
+                localStorage.setItem("currentUser", JSON.stringify(currentUser));
+                showNotification("Login Owner berhasil!", "success");
+                showMainApp();
+            } else {
+                showNotification("Password owner salah!", "error");
+            }
+        };
+
+        // Logout
+        window.logout = function() {
+            currentUser = null;
+            localStorage.removeItem("currentUser");
+            location.reload();
+        };
+
+        // Show Main Application
+        function showMainApp() {
+            // Hide auth panel, show main app
+            document.getElementById('panelAuth').classList.remove('active');
+            document.getElementById('mainNav').style.display = 'flex';
+            document.getElementById('headerUserInfo').style.display = 'flex';
+            
+            // Set user info
+            document.getElementById('growidText').innerText = currentUser.growid;
+            document.getElementById('profileUsername').innerText = currentUser.username;
+            document.getElementById('profileGrowID').innerText = currentUser.growid;
+            
+            // Show owner panel if owner
+            if (currentUser.isOwner) {
+                document.getElementById('adminBadge').style.display = 'inline';
+                document.getElementById('ownerPanelSection').style.display = 'block';
+            }
+            
+            // Show auction panel by default
+            switchPanel('auction');
+            
+            // Initialize data
+            initUserBalance();
+            loadPrivateChats();
+            loadTransactions();
         }
 
+        // Panel Switching
         window.switchPanel = function(p) {
             document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
             document.getElementById("panel" + capitalize(p)).classList.add("active");
@@ -985,271 +1134,18 @@
             return t.charAt(0).toUpperCase() + t.slice(1);
         }
 
-        window.showSection = function(section) {
-            ["auctionControl", "balanceControl", "securityControl"].forEach(id => {
-                document.getElementById(id).style.display = id === section ? 'block' : 'none';
-            });
-        };
-
-        function showNotification(message, type = 'info', duration = 3000) {
-            const notif = document.createElement('div');
-            notif.className = `notification ${type}`;
-            notif.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
-            document.body.appendChild(notif);
-            setTimeout(() => notif.remove(), duration);
-        }
-
-        // PASSWORD SYSTEM
-        window.ownerLogin = async function() {
-            const inputPass = document.getElementById("ownerPass").value;
-            
-            // Get password from Firebase (default: zupediaweb)
-            const passRef = ref(db, "config/ownerPassword");
-            const snap = await get(passRef);
-            
-            let correctPass = DEFAULT_PASSWORD;
-            if (snap.exists()) {
-                correctPass = snap.val();
-            } else {
-                // Set default if not exists
-                await set(passRef, DEFAULT_PASSWORD);
-            }
-
-            if (inputPass === correctPass) {
-                isOwner = true;
-                localStorage.setItem("isOwner", "true");
-                localStorage.setItem("ownerPass", inputPass);
-                
-                document.getElementById("ownerLoginForm").style.display = "none";
-                document.getElementById("ownerPanel").style.display = "block";
-                document.getElementById("adminBadge").style.display = "inline";
-                document.getElementById("ownerPass").value = "";
-                
-                showNotification("Login Owner berhasil!", "success");
-            } else {
-                showNotification("Password salah!", "error");
-            }
-        };
-
-        window.logoutOwner = function() {
-            isOwner = false;
-            localStorage.removeItem("isOwner");
-            localStorage.removeItem("ownerPass");
-            document.getElementById("ownerLoginForm").style.display = "block";
-            document.getElementById("ownerPanel").style.display = "none";
-            document.getElementById("adminBadge").style.display = "none";
-            showNotification("Logout berhasil!", "info");
-        };
-
-        window.checkPasswordStrength = function() {
-            const pass = document.getElementById("newPass").value;
-            const bar = document.getElementById("strengthBar");
-            const text = document.getElementById("strengthText");
-            
-            let strength = 0;
-            if (pass.length >= 6) strength++;
-            if (pass.length >= 10) strength++;
-            if (/[A-Z]/.test(pass)) strength++;
-            if (/[0-9]/.test(pass)) strength++;
-            if (/[^A-Za-z0-9]/.test(pass)) strength++;
-
-            bar.className = "password-strength-bar";
-            
-            if (pass.length === 0) {
-                text.innerText = "";
-            } else if (strength <= 2) {
-                bar.classList.add("strength-weak");
-                text.innerText = "Lemah - Tambahkan huruf besar, angka, dan simbol";
-                text.style.color = "#dc3545";
-            } else if (strength <= 4) {
-                bar.classList.add("strength-medium");
-                text.innerText = "Sedang - Password bisa lebih kuat";
-                text.style.color = "#ffc107";
-            } else {
-                bar.classList.add("strength-strong");
-                text.innerText = "Kuat - Password aman!";
-                text.style.color = "#28a745";
-            }
-        };
-
-        window.changePassword = async function() {
-            const current = document.getElementById("currentPass").value;
-            const newPass = document.getElementById("newPass").value;
-            const confirm = document.getElementById("confirmPass").value;
-
-            if (!current || !newPass || !confirm) {
-                return showNotification("Semua field harus diisi!", "error");
-            }
-
-            // Verify current password
-            const snap = await get(ref(db, "config/ownerPassword"));
-            const storedPass = snap.exists() ? snap.val() : DEFAULT_PASSWORD;
-
-            if (current !== storedPass) {
-                return showNotification("Password saat ini salah!", "error");
-            }
-
-            if (newPass !== confirm) {
-                return showNotification("Password baru dan konfirmasi tidak cocok!", "error");
-            }
-
-            if (newPass.length < 6) {
-                return showNotification("Password minimal 6 karakter!", "error");
-            }
-
-            // Update password
-            await set(ref(db, "config/ownerPassword"), newPass);
-            
-            // Update local storage
-            localStorage.setItem("ownerPass", newPass);
-            
-            // Clear inputs
-            document.getElementById("currentPass").value = "";
-            document.getElementById("newPass").value = "";
-            document.getElementById("confirmPass").value = "";
-            document.getElementById("strengthBar").className = "password-strength-bar";
-            document.getElementById("strengthText").innerText = "";
-            
-            // Update display
-            document.querySelector('.password-display code').innerText = newPass;
-            
-            showNotification("Password berhasil diubah!", "success");
-        };
-
-        // Profile
-        window.saveProfile = function() {
-            const val = document.getElementById("growidInput").value.trim();
-            if (val && val.length >= 3) {
-                currentGrowID = val;
-                localStorage.setItem("growid", val);
-                document.getElementById("growidText").innerText = val;
-                showNotification("Profil berhasil disimpan!", "success");
-                initUserBalance();
-            } else {
-                showNotification("GrowID minimal 3 karakter!", "error");
-            }
-        };
-
-        // Auction Functions
-        window.createAuction = async function() {
-            if (!isOwner) return showNotification("Anda bukan owner!", "error");
-            
-            const name = document.getElementById("itemName").value.trim();
-            const qty = document.getElementById("itemQty").value.trim();
-            const img = document.getElementById("itemImg").value.trim();
-            const duration = parseInt(document.getElementById("duration").value) || 5;
-            const minBid = parseFloat(document.getElementById("minBid").value) || 1;
-
-            if (!name || !qty) return showNotification("Nama item dan jumlah wajib diisi!", "error");
-
-            const endTime = Date.now() + duration * 60000;
-            
-            await set(ref(db, "auction/current"), {
-                itemName: name,
-                itemQty: qty,
-                imageUrl: img || `https://placehold.co/120x120?text=${encodeURIComponent(name)}`,
-                highestBid: 0,
-                highestBidder: "-",
-                minBid: minBid,
-                endTime: endTime,
-                status: "active",
-                createdBy: currentGrowID,
-                createdAt: Date.now(),
-                totalBids: 0,
-                participants: {}
-            });
-            
-            await set(ref(db, "bids"), null);
-            hasShownWinnerModal = false;
-            showNotification("Lelang dimulai!", "success");
-            
-            ["itemName", "itemQty", "itemImg", "duration", "minBid"].forEach(id => {
-                document.getElementById(id).value = "";
-            });
-        };
-
-        window.endAuctionEarly = async function() {
-            if (!isOwner) return showNotification("Anda bukan owner!", "error");
-            if (!currentAuction || currentAuction.status !== "active") {
-                return showNotification("Tidak ada lelang aktif!", "error");
-            }
-            
-            if (confirm("Yakin ingin mengakhiri lelang sekarang?")) {
-                await processAuctionEnd();
-            }
-        };
-
-        // Balance Management
-        window.manageBalance = async function(type) {
-            if (!isOwner) return showNotification("Anda bukan owner!", "error");
-            
-            const target = document.getElementById("targetGrowID").value.trim();
-            const amount = parseFloat(document.getElementById("balanceAmount").value);
-            
-            if (!target || !amount || amount <= 0) {
-                return showNotification("Data tidak valid!", "error");
-            }
-
-            const userRef = ref(db, `users/${target}/balance`);
-            const snap = await get(userRef);
-            let currentBal = snap.exists() ? snap.val() : 0;
-            
-            let newBal;
-            if (type === 'deposit') {
-                newBal = currentBal + amount;
-                await set(userRef, newBal);
-                await push(ref(db, `users/${target}/transactions`), {
-                    type: 'deposit',
-                    amount: amount,
-                    by: currentGrowID,
-                    timestamp: Date.now(),
-                    note: 'Deposit oleh owner'
-                });
-                await push(ref(db, `private/${target}/system`), {
-                    from: 'SYSTEM',
-                    message: `Saldo Anda bertambah ${amount} BGL (Deposit oleh owner)`,
-                    timestamp: Date.now(),
-                    type: 'notification'
-                });
-                showNotification(`Berhasil deposit ${amount} BGL ke ${target}`, "success");
-            } else {
-                if (currentBal < amount) return showNotification("Saldo pemain tidak cukup!", "error");
-                newBal = currentBal - amount;
-                await set(userRef, newBal);
-                await push(ref(db, `users/${target}/transactions`), {
-                    type: 'withdraw',
-                    amount: -amount,
-                    by: currentGrowID,
-                    timestamp: Date.now(),
-                    note: 'Withdraw oleh owner'
-                });
-                await push(ref(db, `private/${target}/system`), {
-                    from: 'SYSTEM',
-                    message: `Saldo Anda berkurang ${amount} BGL (Withdraw oleh owner)`,
-                    timestamp: Date.now(),
-                    type: 'notification'
-                });
-                showNotification(`Berhasil withdraw ${amount} BGL dari ${target}`, "success");
-            }
-        };
-
-        window.checkPlayerBalance = async function() {
-            if (!isOwner) return;
-            const target = document.getElementById("targetGrowID").value.trim();
-            if (!target) return showNotification("Masukkan GrowID!", "error");
-            
-            const snap = await get(ref(db, `users/${target}/balance`));
-            const bal = snap.exists() ? snap.val() : 0;
-            showNotification(`Saldo ${target}: ${bal} BGL`, "info", 5000);
+        window.showOwnerSection = function(section) {
+            document.getElementById("auctionCtrl").style.display = section === 'auctionCtrl' ? 'block' : 'none';
+            document.getElementById("balanceCtrl").style.display = section === 'balanceCtrl' ? 'block' : 'none';
         };
 
         // User Balance
         async function initUserBalance() {
-            const snap = await get(ref(db, `users/${currentGrowID}/balance`));
+            const snap = await get(ref(db, `users/${currentUser.growid}/balance`));
             userBalance = snap.exists() ? snap.val() : 0;
             updateBalanceDisplay();
             
-            onValue(ref(db, `users/${currentGrowID}/balance`), s => {
+            onValue(ref(db, `users/${currentUser.growid}/balance`), s => {
                 userBalance = s.exists() ? s.val() : 0;
                 updateBalanceDisplay();
             });
@@ -1276,6 +1172,109 @@
             }
         }
 
+        // Owner Functions
+        window.createAuction = async function() {
+            const name = document.getElementById("itemName").value.trim();
+            const qty = document.getElementById("itemQty").value.trim();
+            const img = document.getElementById("itemImg").value.trim();
+            const duration = parseInt(document.getElementById("duration").value) || 5;
+            const minBid = parseFloat(document.getElementById("minBid").value) || 1;
+
+            if (!name || !qty) return showNotification("Nama item dan jumlah wajib diisi!", "error");
+
+            const endTime = Date.now() + duration * 60000;
+            
+            await set(ref(db, "auction/current"), {
+                itemName: name,
+                itemQty: qty,
+                imageUrl: img || `https://placehold.co/120x120?text=${encodeURIComponent(name)}`,
+                highestBid: 0,
+                highestBidder: "-",
+                minBid: minBid,
+                endTime: endTime,
+                status: "active",
+                createdBy: currentUser.growid,
+                createdAt: Date.now(),
+                totalBids: 0,
+                participants: {}
+            });
+            
+            await set(ref(db, "bids"), null);
+            hasShownWinnerModal = false;
+            showNotification("Lelang dimulai!", "success");
+            
+            ["itemName", "itemQty", "itemImg", "duration", "minBid"].forEach(id => {
+                document.getElementById(id).value = "";
+            });
+        };
+
+        window.endAuctionEarly = async function() {
+            if (!currentAuction || currentAuction.status !== "active") {
+                return showNotification("Tidak ada lelang aktif!", "error");
+            }
+            if (confirm("Yakin ingin mengakhiri lelang sekarang?")) {
+                await processAuctionEnd();
+            }
+        };
+
+        window.manageBalance = async function(type) {
+            const target = document.getElementById("targetGrowID").value.trim();
+            const amount = parseFloat(document.getElementById("balanceAmount").value);
+            
+            if (!target || !amount || amount <= 0) {
+                return showNotification("Data tidak valid!", "error");
+            }
+
+            const userRef = ref(db, `users/${target}/balance`);
+            const snap = await get(userRef);
+            let currentBal = snap.exists() ? snap.val() : 0;
+            
+            if (type === 'deposit') {
+                await set(userRef, currentBal + amount);
+                await push(ref(db, `users/${target}/transactions`), {
+                    type: 'deposit',
+                    amount: amount,
+                    by: currentUser.growid,
+                    timestamp: Date.now(),
+                    note: 'Deposit oleh owner'
+                });
+                await push(ref(db, `private/${target}/system`), {
+                    from: 'SYSTEM',
+                    message: `Saldo Anda bertambah ${amount} BGL (Deposit oleh owner)`,
+                    timestamp: Date.now(),
+                    type: 'notification'
+                });
+                showNotification(`Berhasil deposit ${amount} BGL ke ${target}`, "success");
+            } else {
+                if (currentBal < amount) return showNotification("Saldo pemain tidak cukup!", "error");
+                await set(userRef, currentBal - amount);
+                await push(ref(db, `users/${target}/transactions`), {
+                    type: 'withdraw',
+                    amount: -amount,
+                    by: currentUser.growid,
+                    timestamp: Date.now(),
+                    note: 'Withdraw oleh owner'
+                });
+                await push(ref(db, `private/${target}/system`), {
+                    from: 'SYSTEM',
+                    message: `Saldo Anda berkurang ${amount} BGL (Withdraw oleh owner)`,
+                    timestamp: Date.now(),
+                    type: 'notification'
+                });
+                showNotification(`Berhasil withdraw ${amount} BGL dari ${target}`, "success");
+            }
+        };
+
+        window.checkPlayerBalance = async function() {
+            const target = document.getElementById("targetGrowID").value.trim();
+            if (!target) return showNotification("Masukkan GrowID!", "error");
+            
+            const snap = await get(ref(db, `users/${target}/balance`));
+            const bal = snap.exists() ? snap.val() : 0;
+            showNotification(`Saldo ${target}: ${bal} BGL`, "info", 5000);
+        };
+
+        // Currency Conversion
         function convert(amount, currency) {
             switch(currency) {
                 case "DL": return amount * 100;
@@ -1304,7 +1303,7 @@
             if (bidVal < d.minBid) return showNotification(`Bid minimal adalah ${d.minBid} BGL!`, "error");
             if (bidVal <= d.highestBid) return showNotification(`Bid harus lebih tinggi dari ${d.highestBid} BGL!`, "error");
 
-            const userBidRef = ref(db, `auction/current/participants/${currentGrowID}`);
+            const userBidRef = ref(db, `auction/current/participants/${currentUser.growid}`);
             const userBidSnap = await get(userBidRef);
             let previousBid = 0;
             if (userBidSnap.exists()) {
@@ -1316,25 +1315,25 @@
                 return showNotification(`Saldo tidak cukup untuk menaikkan bid! Butuh tambahan ${additionalNeeded} BGL`, "error");
             }
 
-            await update(ref(db, `users/${currentGrowID}`), {
+            await update(ref(db, `users/${currentUser.growid}`), {
                 balance: userBalance - additionalNeeded,
                 lockedBalance: (userBidSnap.exists() ? userBidSnap.val().locked || 0 : 0) + additionalNeeded
             });
 
             await update(ref(db, "auction/current"), {
                 highestBid: bidVal,
-                highestBidder: currentGrowID,
+                highestBidder: currentUser.growid,
                 totalBids: (d.totalBids || 0) + 1
             });
 
-            await set(ref(db, `auction/current/participants/${currentGrowID}`), {
+            await set(ref(db, `auction/current/participants/${currentUser.growid}`), {
                 amount: bidVal,
                 locked: bidVal,
                 timestamp: Date.now()
             });
 
             await push(ref(db, "bids"), {
-                growid: currentGrowID,
+                growid: currentUser.growid,
                 amount: bidVal,
                 currency: cur,
                 originalAmount: amt,
@@ -1411,7 +1410,7 @@
                     }
                 });
 
-                if (winner === currentGrowID && !hasShownWinnerModal) {
+                if (winner === currentUser.growid && !hasShownWinnerModal) {
                     showWinnerModal(currentAuction, winAmount);
                 }
             }
@@ -1436,7 +1435,7 @@
             if (!wa || wa.length < 10) return showNotification("Masukkan nomor WA yang valid!", "error");
 
             await push(ref(db, "admin/winnerClaims"), {
-                growid: currentGrowID,
+                growid: currentUser.growid,
                 wa: wa,
                 item: currentAuction.itemName,
                 qty: currentAuction.itemQty,
@@ -1445,7 +1444,7 @@
                 status: "pending"
             });
 
-            await push(ref(db, `private/${currentGrowID}/system`), {
+            await push(ref(db, `private/${currentUser.growid}/system`), {
                 from: 'BOT_AUCTION',
                 message: `✅ Data Anda telah dikirim ke owner! Nomor WA: ${wa}. Owner akan menghubungi Anda segera.`,
                 timestamp: Date.now(),
@@ -1463,7 +1462,7 @@
             if (text.length > 200) return showNotification("Pesan terlalu panjang!", "error");
 
             await push(ref(db, "chat"), {
-                growid: currentGrowID,
+                growid: currentUser.growid,
                 message: text,
                 timestamp: Date.now()
             });
@@ -1474,7 +1473,7 @@
         async function loadPrivateChats() {
             const chatList = document.getElementById("privateChatList");
             
-            onValue(query(ref(db, `private/${currentGrowID}`), limitToLast(50)), snapshot => {
+            onValue(query(ref(db, `private/${currentUser.growid}`), limitToLast(50)), snapshot => {
                 chatList.innerHTML = "";
                 const chats = snapshot.val() || {};
                 
@@ -1522,7 +1521,7 @@
             document.getElementById("privateInputArea").style.display = chatId === 'system' ? 'none' : 'flex';
             
             const messagesDiv = document.getElementById("privateMessages");
-            onValue(ref(db, `private/${currentGrowID}/${chatId}`), snapshot => {
+            onValue(ref(db, `private/${currentUser.growid}/${chatId}`), snapshot => {
                 messagesDiv.innerHTML = "";
                 const messages = snapshot.val() || {};
                 
@@ -1533,7 +1532,7 @@
                     if (msg.from === 'SYSTEM' || msg.from === 'BOT_AUCTION') {
                         div.className += " system";
                         div.innerHTML = `<i class="fas fa-robot"></i> <b>${msg.from}</b><br>${msg.message}`;
-                    } else if (msg.from === currentGrowID) {
+                    } else if (msg.from === currentUser.growid) {
                         div.className += " own";
                         div.innerHTML = `<b>Anda</b><br>${msg.message}`;
                     } else {
@@ -1549,7 +1548,7 @@
                 if (chatId === 'system') {
                     Object.keys(messages).forEach(key => {
                         if (!messages[key].read) {
-                            update(ref(db, `private/${currentGrowID}/${chatId}/${key}`), { read: true });
+                            update(ref(db, `private/${currentUser.growid}/${chatId}/${key}`), { read: true });
                         }
                     });
                 }
@@ -1562,15 +1561,15 @@
             const text = document.getElementById("privateInput").value.trim();
             if (!text) return;
 
-            await push(ref(db, `private/${currentChatPartner}/${currentGrowID}`), {
-                from: currentGrowID,
+            await push(ref(db, `private/${currentChatPartner}/${currentUser.growid}`), {
+                from: currentUser.growid,
                 message: text,
                 timestamp: Date.now(),
                 read: false
             });
 
-            await push(ref(db, `private/${currentGrowID}/${currentChatPartner}`), {
-                from: currentGrowID,
+            await push(ref(db, `private/${currentUser.growid}/${currentChatPartner}`), {
+                from: currentUser.growid,
                 message: text,
                 timestamp: Date.now(),
                 read: true
@@ -1583,7 +1582,7 @@
         function loadTransactions() {
             const histDiv = document.getElementById("transactionHistory");
             
-            onValue(query(ref(db, `users/${currentGrowID}/transactions`), limitToLast(20)), snapshot => {
+            onValue(query(ref(db, `users/${currentUser.growid}/transactions`), limitToLast(20)), snapshot => {
                 if (!snapshot.exists()) {
                     histDiv.innerHTML = `
                         <div class="empty-state">
@@ -1666,7 +1665,7 @@
                     clearInterval(timerInt);
                     
                     if (d.status === "active") processAuctionEnd();
-                    if (d.highestBidder === currentGrowID && d.status === "ended" && !hasShownWinnerModal) {
+                    if (d.highestBidder === currentUser.growid && d.status === "ended" && !hasShownWinnerModal) {
                         showWinnerModal(d, d.highestBid);
                     }
                 } else {
@@ -1708,7 +1707,7 @@
             if (chatDiv.querySelector(".empty-state")) chatDiv.innerHTML = "";
             
             const div = document.createElement("div");
-            div.className = "chat-bubble" + (c.growid === currentGrowID ? " own" : "");
+            div.className = "chat-bubble" + (c.growid === currentUser.growid ? " own" : "");
             div.innerHTML = `<b>${c.growid}</b><br>${escapeHtml(c.message)}`;
             chatDiv.appendChild(div);
             chatDiv.scrollTop = chatDiv.scrollHeight;
@@ -1719,11 +1718,6 @@
             div.textContent = text;
             return div.innerHTML;
         }
-
-        // Initialize
-        initUserBalance();
-        loadPrivateChats();
-        loadTransactions();
 
         window.addEventListener('beforeunload', () => {
             if (timerInt) clearInterval(timerInt);
